@@ -1,18 +1,9 @@
-// app.js — RoddelPraat Quiz (revamp)
+// app.js — Singleplayer RoddelPraat Quiz (hard mode)
 
-/**
- * ✅ Assets
- * - Spelers: assets/players/<slug>.gif (of .jpg/.png)
- * - Vragen:  assets/questions/q1.jpg etc (pas aan in QUESTIONS)
- */
-
-// =====================================================
-// 🔧 Helpers
-// =====================================================
 const $ = (id) => document.getElementById(id);
 
 function show(view){
-  [playerView, quizView, resultView].forEach(v => v.classList.remove("active"));
+  [startView, quizView, resultView].forEach(v => v.classList.remove("active"));
   view.classList.add("active");
 }
 
@@ -22,160 +13,253 @@ function scrollToTop(){
   document.body.scrollTop = 0;
 }
 
-function pad2(n){ return String(n).padStart(2, "0"); }
-
+function pad2(n){ return String(n).padStart(2,"0"); }
 function nowStamp(){
   const d = new Date();
   return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
 
-function getStillPhoto(photoPath){
-  // als je gifs gebruikt maar bij "youImg" liever stil: maak jpg variant met dezelfde naam.
-  // bv dennis.gif -> dennis.jpg (optioneel)
-  return String(photoPath || "").replace(/\.(gif|webp|png|jpg|jpeg)$/i, ".jpg");
-}
-
-// =====================================================
-// 👤 Spelers (breid gerust uit)
-// =====================================================
-const PLAYERS = [
-  { name: "Dennis", slug: "dennis", tag: "Host", photo: "assets/players/dennis.gif" },
-  { name: "Jan", slug: "jan", tag: "Host", photo: "assets/players/jan.gif" },
-  { name: "OJ", slug: "oj", tag: "Crew", photo: "assets/players/oj.gif" },
-  { name: "Henry", slug: "henry", tag: "Crew", photo: "assets/players/henry.gif" },
-  { name: "Thierry", slug: "thierry", tag: "Gast", photo: "assets/players/thierry.gif" },
-  { name: "Mr Nightlife", slug: "mrnightlife", tag: "Legende", photo: "assets/players/mrnightlife.gif" },
-  { name: "Marcel", slug: "marcel", tag: "Kevin", photo: "assets/players/marcel.gif" },
-
-  // extra placeholders (zet je eigen gifs neer)
-  { name: "Kevin #1", slug: "kevin1", tag: "Supporter", photo: "assets/players/kevin1.gif" },
-  { name: "Kevin #2", slug: "kevin2", tag: "Supporter", photo: "assets/players/kevin2.gif" },
-  { name: "Gast #1", slug: "gast1", tag: "Gast", photo: "assets/players/gast1.gif" },
-];
-
-// =====================================================
-// ⚙️ Quiz instellingen (UI toggles)
-// =====================================================
-const SETTINGS_DEFAULTS = {
-  strictMode: false, // na antwoord niet meer wijzigen (voor iedereen)
-  nextLock: true,    // wacht X sec na antwoord voordat je door kan
-  fadeIn: false      // afbeelding langzaam zichtbaar
-};
-
-let SETTINGS = { ...SETTINGS_DEFAULTS };
-
-// =====================================================
-// 🎯 Player regels (per speler override)
-// =====================================================
-// Admin kan alles, geen lock, mag altijd wijzigen
-const ADMIN_PLAYER = "Dennis";
-
-// Speler(s) die na keuze niet meer mogen wijzigen, ook als strictMode uit staat
-const NO_CHANGE_PLAYERS = new Set(["Jan"]);
-
-// Timed players (lock na antwoorden)
-const TIMED_PLAYERS = new Set(PLAYERS.map(p => p.name)); // iedereen
-const LOCK_SECONDS_DEFAULT = 5;
-const LOCK_SECONDS_SPECIAL = new Map([
-  ["Jan", 8],
-  ["Mr Nightlife", 6],
-]);
-
-function isAdmin(){
-  return (currentPlayer?.name || "") === ADMIN_PLAYER;
-}
-function isNoChangePlayer(){
-  return NO_CHANGE_PLAYERS.has(currentPlayer?.name || "");
-}
-function isTimedPlayer(){
-  if(isAdmin()) return false;
-  return TIMED_PLAYERS.has(currentPlayer?.name || "");
-}
-function getLockSeconds(){
-  const nm = currentPlayer?.name || "";
-  return LOCK_SECONDS_SPECIAL.get(nm) ?? LOCK_SECONDS_DEFAULT;
-}
-
-// Fade-in timing
-const FADE_DURATION_MS = 6500;
-const FADE_DELAY_MS = 350;
-
-// =====================================================
-// ❓ Vragen (placeholder set)
-// -> Vervang dit met jouw eigen RoddelPraat vragen + images
-// =====================================================
+/**
+ * Vragen zijn gebaseerd op publiek beschreven feiten (o.a. Wikipedia + Rechtspraak + NOS/NU + Roddelpraat-site).
+ * Geen “roddels over personen” als feit; alleen controleerbare data/structuur/geschiedenis/juridische uitspraken.
+ */
 const QUESTIONS = [
   {
-    vraag: "Wanneer komt RoddelPraat meestal online?",
-    meta: "Algemeen",
-    image: "assets/questions/q1.jpg",
-    antwoorden: ["Maandag", "Woensdag", "Vrijdag", "Zondag"],
-    correctIndex: 1,
-    uitleg: "RoddelPraat is traditioneel de woensdag-show (meestal)."
-  },
-  {
-    vraag: "Welke kleur hoort het meest bij de RoddelPraat-vibe?",
-    meta: "Theme check",
-    image: "assets/questions/q2.jpg",
-    antwoorden: ["Groen", "Paars", "Oranje", "Bruin"],
-    correctIndex: 1,
-    uitleg: "💜 Paars hoort er gewoon bij."
-  },
-  {
-    vraag: "Wie zijn de vaste hosts?",
-    meta: "Basis",
-    image: "assets/questions/q3.jpg",
-    antwoorden: ["Dennis & Jan", "Dennis & OJ", "Jan & Henry", "Thierry & Marcel"],
+    meta: "Geschiedenis",
+    vraag: "Wat is de startdatum van RoddelPraat (eerste aflevering)?",
+    antwoorden: ["13 maart 2020", "13 maart 2021", "2 juni 2020", "19 september 2021"],
     correctIndex: 0,
-    uitleg: "Dennis Schouten en Jan Roos."
+    uitleg: "De serie startte op 13 maart 2020."
   },
   {
-    vraag: "Wat is het beste antwoord?",
-    meta: "Meme",
-    image: "assets/questions/q4.jpg",
-    antwoorden: ["Kevin.", "Kevin!!", "KEVIN!!!", "Allemaal waar."],
-    correctIndex: 3,
-    uitleg: "Als het RoddelPraat is: alles kan waar zijn."
+    meta: "Geschiedenis",
+    vraag: "Wie presenteerde (naast Dennis) in de eerste afleveringen vóór Jan vaste host werd?",
+    antwoorden: ["Mark Baanders", "Thierry Baudet", "Giel Beelen", "Henk Krol"],
+    correctIndex: 0,
+    uitleg: "Mark Baanders presenteerde in het begin (aflevering 1 t/m 3)."
+  },
+  {
+    meta: "Format",
+    vraag: "Wat is de uploadfrequentie zoals vaak wordt beschreven (publiek)?",
+    antwoorden: ["1× per week, extra voor donateurs", "Dagelijks", "1× per maand", "Alleen live-streams"],
+    correctIndex: 0,
+    uitleg: "Vaak genoemd: 1× per week, en extra content voor donateurs."
+  },
+  {
+    meta: "Geschiedenis",
+    vraag: "Na hoeveel afleveringen stopte de show in mei 2020 (zoals beschreven)?",
+    antwoorden: ["7", "3", "10", "21"],
+    correctIndex: 0,
+    uitleg: "Er wordt beschreven dat het na zeven afleveringen stopte (13 mei 2020), waarna men in eigen beheer verder ging."
+  },
+  {
+    meta: "Talpa-periode",
+    vraag: "Op welke datum werd bekend dat er een contract met Talpa Network was getekend (zoals vaak genoemd)?",
+    antwoorden: ["2 juni 2020", "6 september 2021", "16 maart 2022", "24 juli 2020"],
+    correctIndex: 0,
+    uitleg: "2 juni 2020 wordt genoemd als moment waarop bekend werd dat er een contract was."
+  },
+  {
+    meta: "Talpa-periode",
+    vraag: "Hoe lang duurde de samenwerking met Talpa ongeveer voordat die weer stopte (globaal)?",
+    antwoorden: ["Nog geen maand", "Ongeveer 2 jaar", "Ongeveer 6 maanden", "Meer dan 5 jaar"],
+    correctIndex: 0,
+    uitleg: "De samenwerking wordt beschreven als kort; binnen ongeveer een maand was het weer voorbij."
+  },
+  {
+    meta: "Awards",
+    vraag: "In welk jaar wordt de 100k Creator Award (100k abonnees) genoemd?",
+    antwoorden: ["2021", "2020", "2022", "2024"],
+    correctIndex: 0,
+    uitleg: "De 100k Creator Award wordt genoemd bij 2021."
+  },
+  {
+    meta: "Televizier-zaak",
+    vraag: "Welke prijs/categorie speelde de rechtszaak in 2021 rond uitsluiting?",
+    antwoorden: ["Televizier-Ster Online-videoserie", "Gouden Televizier-Ring", "Zilveren Nipkowschijf", "NPO Podcast Award"],
+    correctIndex: 0,
+    uitleg: "Het ging om de Televizier-Ster Online-videoserie."
+  },
+  {
+    meta: "Televizier-zaak",
+    vraag: "Wat was (heel kort) de uitkomst van het kort geding rond Televizier (zoals samengevat)?",
+    antwoorden: [
+      "Onzorgvuldig/onrechtmatig, maar geen verplichting tot toelaten",
+      "Volledig gelijk en alsnog verplicht toegelaten",
+      "Volledig ongelijk en schadevergoeding aan Televizier",
+      "Zaak werd niet-ontvankelijk verklaard"
+    ],
+    correctIndex: 0,
+    uitleg: "Samengevat: organisatie handelde onzorgvuldig/onrechtmatig, maar RoddelPraat hoefde niet alsnog toegelaten te worden."
+  },
+  {
+    meta: "Televizier-zaak",
+    vraag: "Welke datum wordt genoemd als uitspraakdag (kop-staartvonnis) in 2021?",
+    antwoorden: ["6 september 2021", "2 september 2021", "20 september 2021", "17 augustus 2021"],
+    correctIndex: 0,
+    uitleg: "6 september 2021 wordt genoemd als dag van het (kop-staart)vonnis."
+  },
+  {
+    meta: "Rechtspraak",
+    vraag: "Welke datum wordt genoemd voor de uitspraak in het kort geding van Famke Louise tegen RoddelPraat?",
+    antwoorden: ["16 maart 2022", "4 maart 2022", "13 december 2022", "23 maart 2022"],
+    correctIndex: 0,
+    uitleg: "De uitspraak werd gedaan op 16 maart 2022."
+  },
+  {
+    meta: "Rechtspraak",
+    vraag: "Wat moest er volgens berichtgeving gebeuren met de betreffende aflevering in de Famke Louise-zaak?",
+    antwoorden: [
+      "Offline halen + rectificeren",
+      "Alleen leeftijdsrestrictie instellen",
+      "Alleen comments uitzetten",
+      "Alleen titel aanpassen"
+    ],
+    correctIndex: 0,
+    uitleg: "Berichtgeving noemt: offline halen en rectificeren."
+  },
+  {
+    meta: "Rechtspraak",
+    vraag: "Wat zei de berichtgeving (kort) over de aard van de gewraakte uitspraken in de Famke Louise-zaak?",
+    antwoorden: [
+      "Onjuist en ongegrond",
+      "Volledig bewezen",
+      "Satire dus automatisch toegestaan",
+      "Niet beoordeeld door de rechter"
+    ],
+    correctIndex: 0,
+    uitleg: "Er werd bericht dat uitspraken ‘onjuist en ongegrond’ waren en daarom gerectificeerd moesten worden."
+  },
+  {
+    meta: "Hoger beroep",
+    vraag: "Welke instantie publiceerde later een nieuwsbericht dat de uitzending jegens Famke Louise onrechtmatig was (hoger beroep)?",
+    antwoorden: ["Rechtspraak.nl (Gerechtshof Amsterdam)", "Raad van State", "Europees Hof", "Kamer van Koophandel"],
+    correctIndex: 0,
+    uitleg: "Er is een nieuwsbericht hierover gepubliceerd via Rechtspraak.nl (Gerechtshof Amsterdam)."
+  },
+  {
+    meta: "Mallorca",
+    vraag: "Welke reeks hoort bij RoddelPraat als ‘vierdelige videoserie’ rond uitgaan/reis?",
+    antwoorden: ["Jan en Dennis in Mallorca", "Jan en Dennis in Ibiza", "Kevin in Kuala Lumpur", "OJ op Oostende"],
+    correctIndex: 0,
+    uitleg: "Dat was ‘Jan en Dennis in Mallorca’."
+  },
+  {
+    meta: "Mallorca",
+    vraag: "Wat werd er (publiek) gezegd over aflevering 3 en 4 van die Mallorca-reeks?",
+    antwoorden: [
+      "Alleen voor betalende abonnees",
+      "Helemaal gecanceld en nooit gemaakt",
+      "Exclusief op TV uitgezonden",
+      "Alleen als podcast uitgebracht"
+    ],
+    correctIndex: 0,
+    uitleg: "Er werd beschreven dat 3 en 4 alleen voor betalende abonnees te zien zouden zijn."
+  },
+  {
+    meta: "Kanalenzet",
+    vraag: "Na de breuk met Talpa werd RoddelPraat vooral ondergebracht op…",
+    antwoorden: ["een eigen YouTube-kanaal ‘RoddelPraat’", "alleen NieuwNieuws", "alleen PowNed", "alleen TikTok"],
+    correctIndex: 0,
+    uitleg: "Het programma werd verplaatst naar een eigen YouTube-kanaal genaamd ‘RoddelPraat’."
+  },
+  {
+    meta: "Presentatie",
+    vraag: "Vanaf welke aflevering wordt Jan Roos als vaste presentator genoemd (naast Dennis)?",
+    antwoorden: ["Aflevering 4", "Aflevering 1", "Aflevering 2", "Aflevering 10"],
+    correctIndex: 0,
+    uitleg: "Jan Roos wordt genoemd vanaf aflevering 4."
+  },
+  {
+    meta: "Extra content",
+    vraag: "Waar wordt extra (donateurs-)materiaal genoemd dat niet aan YouTube-voorwaarden zou voldoen?",
+    antwoorden: ["Via backme / roddelpraat.app", "Alleen via NPO Start", "Alleen via Netflix", "Alleen via Twitch"],
+    correctIndex: 0,
+    uitleg: "Er wordt beschreven dat extra materiaal via het donateursplatform/roddelpraat.app beschikbaar is."
+  },
+  {
+    meta: "Televizier-zaak (details)",
+    vraag: "Welke omschrijving werd (publiek) genoemd als reden voor uitsluiting door de organisatie (parafrase)?",
+    antwoorden: [
+      "Zou groepen/personen consequent beledigen of wegzetten",
+      "Te weinig kijkers",
+      "Te veel sponsors",
+      "Te technisch van opzet"
+    ],
+    correctIndex: 0,
+    uitleg: "Publieke samenvattingen noemen als reden dat het programma ‘groepen/personen in de samenleving’ zou beledigen/wegzetten."
+  },
+  {
+    meta: "Nieuwsplatform",
+    vraag: "Welke NU.nl-pagina beschreef dat Dennis Schouten na Talpa overstapte naar een nieuwsplatform (GeenStijl-omgeving)?",
+    antwoorden: [
+      "NU.nl Media-artikel (24 juli 2020)",
+      "NU.nl Sportartikel (24 juli 2020)",
+      "NOS Liveblog (24 juli 2020)",
+      "RTL Weer (24 juli 2020)"
+    ],
+    correctIndex: 0,
+    uitleg: "NU.nl (Media) beschreef dit op 24 juli 2020."
+  },
+  {
+    meta: "Vroege periode",
+    vraag: "Wat was de bijnaam die Mark Baanders vaak wordt toegeschreven in deze context?",
+    antwoorden: ["Slijptol", "Lil Fat", "De Sniper", "De Kapitein"],
+    correctIndex: 0,
+    uitleg: "Mark Baanders wordt in deze context vaak ‘Slijptol’ genoemd."
+  },
+  {
+    meta: "RoddelPraat-site",
+    vraag: "Wat wordt op de site genoemd als voordeel van de officiële app voor donateurs (kort)?",
+    antwoorden: ["Exclusieve content (Extra) + community features", "Gratis bioscoopkaartjes", "Alleen merchandise", "Alleen Spotify-playlists"],
+    correctIndex: 0,
+    uitleg: "De site noemt o.a. exclusieve content en community features."
+  },
+  {
+    meta: "Check je details",
+    vraag: "Welke combinatie klopt het best met de beschreven opzet?",
+    antwoorden: [
+      "Wekelijkse YouTube-aflevering + extra uitzending voor betalende leden",
+      "Alleen betaalde afleveringen, nooit op YouTube",
+      "Alleen radio-uitzendingen",
+      "Alleen live shows in theaters"
+    ],
+    correctIndex: 0,
+    uitleg: "Publieke beschrijving: wekelijks op YouTube, en extra voor betalende leden."
   }
 ];
 
-// =====================================================
-// 📌 Elements
-// =====================================================
-const playerView = $("playerView");
-const quizView   = $("quizView");
+// Optional images per vraag (laat leeg = geen image). Voorbeeld:
+// QUESTIONS[0].image = "q1.jpg"
+for(const q of QUESTIONS){
+  if(typeof q.image !== "string") q.image = "";
+}
+
+const startView = $("startView");
+const quizView = $("quizView");
 const resultView = $("resultView");
 
-const playersEl  = $("players");
-const startBtn   = $("startBtn");
-const pickedNameEl = $("pickedName");
+const startBtn = $("startBtn");
+const resetBtn = $("resetBtn");
 
-const youImg     = $("youImg");
-const youName    = $("youName");
-const youTag     = $("youTag");
+const statsEl = $("stats");
+const statsMini = $("statsMini");
+const qNrEl = $("qNr");
+const qTextEl = $("qText");
+const qMetaEl = $("qMeta");
 
-const statsEl    = $("stats");
-const modeLineEl = $("modeLine");
-
-const qNrEl      = $("qNr");
-const qTextEl    = $("qText");
-const qMetaEl    = $("qMeta");
-const qImgEl     = $("qImg");
+const mediaWrap = $("mediaWrap");
+const qImgEl = $("qImg");
 const imgZoomBtn = $("imgZoom");
-const answersEl  = $("answers");
 
-const feedbackEl   = $("feedback");
+const answersEl = $("answers");
+
+const feedbackEl = $("feedback");
 const feedbackHead = $("feedbackHead");
 const feedbackBody = $("feedbackBody");
 
-const backBtn    = $("backBtn");
-const nextBtn    = $("nextBtn");
-const lockLine   = $("lockLine");
-
-const restartBtn = $("restartBtn");
-const showAllBtn = $("showAllBtn");
-const showWrongBtn = $("showWrongBtn");
-const toTopBtn = $("toTopBtn");
+const backBtn = $("backBtn");
+const nextBtn = $("nextBtn");
 
 const resultSummary = $("resultSummary");
 const resultMeta = $("resultMeta");
@@ -185,92 +269,26 @@ const dipTotal = $("dipTotal");
 const diplomaMeta = $("diplomaMeta");
 const reviewList = $("reviewList");
 
-// Settings modal
-const settingsBtn = $("settingsBtn");
-const settingsModal = $("settingsModal");
-const settingsClose = $("settingsClose");
-const settingsSave = $("settingsSave");
-const optStrict = $("optStrict");
-const optLock = $("optLock");
-const optFade = $("optFade");
+const restartBtn = $("restartBtn");
+const showAllBtn = $("showAllBtn");
+const showWrongBtn = $("showWrongBtn");
+const toTopBtn = $("toTopBtn");
 
 // Lightbox
 const lightbox = $("lightbox");
 const lightboxImg = $("lightboxImg");
 const lightboxClose = $("lightboxClose");
 
-// =====================================================
-// 🧠 State
-// =====================================================
-let currentPlayer = null;
-let currentIndex  = 0;
-let quizStarted = false;
-
-// per vraag status
-let state = QUESTIONS.map(() => ({
-  answered: false,
-  pickedIndex: null,
-  correct: false,
-  nextReadyAt: null
-}));
-
-// timers
-let lockInterval = null;
-let fadeTimeout = null;
-
-// =====================================================
-// ⚠️ leave warning
-// =====================================================
-window.addEventListener("beforeunload", (e) => {
-  if(!quizStarted) return;
-  e.preventDefault();
-  e.returnValue = "";
-});
-
-// =====================================================
-// 🧩 Settings
-// =====================================================
-function openSettings(){
-  optStrict.checked = SETTINGS.strictMode;
-  optLock.checked = SETTINGS.nextLock;
-  optFade.checked = SETTINGS.fadeIn;
-
-  settingsModal.classList.remove("hidden");
-  settingsModal.setAttribute("aria-hidden", "false");
-}
-function closeSettings(){
-  settingsModal.classList.add("hidden");
-  settingsModal.setAttribute("aria-hidden", "true");
-}
-function saveSettings(){
-  SETTINGS.strictMode = !!optStrict.checked;
-  SETTINGS.nextLock = !!optLock.checked;
-  SETTINGS.fadeIn = !!optFade.checked;
-
-  closeSettings();
-  renderModeLine();
-  // re-render huidige vraag om fade/lock UI consistent te houden
-  if(quizStarted) renderQuestion();
-}
-
-settingsBtn.onclick = openSettings;
-settingsClose.onclick = closeSettings;
-settingsSave.onclick = saveSettings;
-settingsModal.onclick = (e) => { if(e.target === settingsModal) closeSettings(); };
-
-// =====================================================
-// 🔍 Lightbox
-// =====================================================
 function openLightbox(src, alt){
   if(!src) return;
   lightboxImg.src = src;
   lightboxImg.alt = alt || "";
   lightbox.classList.remove("hidden");
-  lightbox.setAttribute("aria-hidden", "false");
+  lightbox.setAttribute("aria-hidden","false");
 }
 function closeLightbox(){
   lightbox.classList.add("hidden");
-  lightbox.setAttribute("aria-hidden", "true");
+  lightbox.setAttribute("aria-hidden","true");
   lightboxImg.src = "";
   lightboxImg.alt = "";
 }
@@ -279,136 +297,64 @@ lightbox.onclick = () => closeLightbox();
 document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLightbox(); });
 
 imgZoomBtn.onclick = () => openLightbox(qImgEl.src, qTextEl.textContent);
-youImg.onclick = () => openLightbox(youImg.src, youName.textContent);
 
-// =====================================================
-// 🎮 Player select
-// =====================================================
-function renderPlayers(){
-  playersEl.innerHTML = "";
-  PLAYERS.forEach(p => {
-    const el = document.createElement("div");
-    el.className = "player";
-    el.innerHTML = `
-      <img src="${p.photo}" alt="${p.name}">
-      <div class="pmeta">
-        <div class="pname">${p.name}</div>
-        <div class="ptag">${p.tag || ""}</div>
-      </div>
-    `;
-    el.onclick = () => selectPlayer(p, el);
-    playersEl.appendChild(el);
-  });
-}
+// State
+let quizStarted = false;
+let currentIndex = 0;
 
-function selectPlayer(p, el){
-  currentPlayer = p;
-  [...playersEl.children].forEach(c => c.classList.remove("selected"));
-  el.classList.add("selected");
-  startBtn.disabled = false;
-  pickedNameEl.textContent = p.name;
-}
+let state = QUESTIONS.map(() => ({
+  answered: false,
+  pickedIndex: null,
+  correct: false
+}));
 
-startBtn.onclick = () => startGame();
+window.addEventListener("beforeunload", (e) => {
+  if(!quizStarted) return;
+  e.preventDefault();
+  e.returnValue = "";
+});
 
-// =====================================================
-// ▶️ Game flow
-// =====================================================
-function renderModeLine(){
-  if(!modeLineEl) return;
-
-  const parts = [];
-  if(isAdmin()) parts.push("Admin");
-  if(SETTINGS.strictMode || isNoChangePlayer()) parts.push("Strict");
-  if(SETTINGS.nextLock && isTimedPlayer()) parts.push("Next-lock");
-  if(SETTINGS.fadeIn) parts.push("Fade-in");
-
-  modeLineEl.textContent = parts.length ? `Mode: ${parts.join(" • ")}` : "Mode: normaal";
-}
-
-function startGame(){
-  quizStarted = true;
+function resetGame(){
+  quizStarted = false;
   currentIndex = 0;
-
-  state = QUESTIONS.map(() => ({
-    answered: false,
-    pickedIndex: null,
-    correct: false,
-    nextReadyAt: null
-  }));
-
-  youImg.src = getStillPhoto(currentPlayer?.photo) || currentPlayer?.photo || "";
-  youName.textContent = currentPlayer?.name || "Speler";
-  youTag.textContent = currentPlayer?.tag || "";
-
-  show(quizView);
-  renderModeLine();
-  renderQuestion();
+  state = QUESTIONS.map(() => ({ answered:false, pickedIndex:null, correct:false }));
+  show(startView);
   scrollToTop();
-}
-
-function clearTimers(){
-  if(lockInterval){ clearInterval(lockInterval); lockInterval = null; }
-  if(fadeTimeout){ clearTimeout(fadeTimeout); fadeTimeout = null; }
-  lockLine.textContent = "";
 }
 
 function setNextLabel(){
   nextBtn.textContent = (currentIndex === QUESTIONS.length - 1) ? "RESULTAAT" : "VOLGENDE";
 }
 
-function fadeMakeInvisible(){
-  qImgEl.classList.remove("fade-init");
-  qImgEl.style.transition = "";
-  qImgEl.style.opacity = "";
-
-  if(!SETTINGS.fadeIn) return;
-  if(isAdmin()) return;
-
-  qImgEl.classList.add("fade-init");
-  qImgEl.style.transition = "none";
-  qImgEl.style.opacity = "0";
-  void qImgEl.offsetWidth;
-}
-function fadeToVisible(){
-  if(!SETTINGS.fadeIn) return;
-  if(isAdmin()) return;
-
-  qImgEl.style.transition = `opacity ${FADE_DURATION_MS}ms linear`;
-  requestAnimationFrame(() => { qImgEl.style.opacity = "1"; });
-}
-function scheduleFade(){
-  if(!SETTINGS.fadeIn) return;
-  if(isAdmin()) return;
-
-  fadeTimeout = setTimeout(() => fadeToVisible(), FADE_DELAY_MS);
-}
-
 function renderQuestion(){
-  clearTimers();
-  setNextLabel();
-
   const q = QUESTIONS[currentIndex];
   const s = state[currentIndex];
 
   statsEl.textContent = `Vraag ${currentIndex + 1} / ${QUESTIONS.length}`;
+  statsMini.textContent = `Gestart: ${quizStarted ? "ja" : "nee"} • Tijd: ${nowStamp()}`;
+
   qNrEl.textContent = `Vraag ${currentIndex + 1}`;
   qTextEl.textContent = q.vraag;
   qMetaEl.textContent = q.meta ? `Categorie: ${q.meta}` : "—";
 
-  // image
-  fadeMakeInvisible();
-  qImgEl.onload = null;
-  qImgEl.src = q.image || "";
-  qImgEl.alt = q.vraag || "Vraag afbeelding";
-  qImgEl.onload = () => scheduleFade();
-  setTimeout(() => scheduleFade(), 60);
+  setNextLabel();
+  backBtn.disabled = (currentIndex === 0);
+
+  // image (optional)
+  if(q.image){
+    mediaWrap.classList.remove("hidden");
+    qImgEl.src = q.image;
+    qImgEl.alt = q.vraag;
+  }else{
+    mediaWrap.classList.add("hidden");
+    qImgEl.src = "";
+    qImgEl.alt = "";
+  }
 
   // answers
   answersEl.innerHTML = "";
   feedbackEl.classList.add("hidden");
-
-  backBtn.disabled = (currentIndex === 0);
+  nextBtn.disabled = !s.answered;
 
   q.antwoorden.forEach((txt, idx) => {
     const b = document.createElement("button");
@@ -422,8 +368,23 @@ function renderQuestion(){
     paintAnsweredState();
     showFeedback(s.correct, q);
   }
+}
 
-  applyNextRules();
+function pickAnswer(pickedIndex){
+  const q = QUESTIONS[currentIndex];
+  const s = state[currentIndex];
+
+  // je mag hier wél wijzigen door opnieuw te klikken (geen lock/strict)
+  const isCorrect = pickedIndex === q.correctIndex;
+
+  s.answered = true;
+  s.pickedIndex = pickedIndex;
+  s.correct = isCorrect;
+
+  paintAnsweredState();
+  showFeedback(isCorrect, q);
+
+  nextBtn.disabled = false;
 }
 
 function paintAnsweredState(){
@@ -432,16 +393,9 @@ function paintAnsweredState(){
   const btns = [...answersEl.querySelectorAll("button")];
 
   btns.forEach((b, idx) => {
-    b.classList.remove("correct", "wrong");
-
+    b.classList.remove("correct","wrong");
     if(s.answered && idx === q.correctIndex) b.classList.add("correct");
     if(s.answered && s.pickedIndex === idx && idx !== q.correctIndex) b.classList.add("wrong");
-
-    const shouldLockAnswers =
-      (SETTINGS.strictMode && s.answered && !isAdmin()) ||
-      (isNoChangePlayer() && s.answered && !isAdmin());
-
-    b.disabled = shouldLockAnswers;
   });
 }
 
@@ -459,89 +413,6 @@ function showFeedback(isCorrect, q){
   `;
 }
 
-function pickAnswer(pickedIndex){
-  const q = QUESTIONS[currentIndex];
-  const s = state[currentIndex];
-
-  // als strict/no-change actief en al beantwoord -> niet meer wisselen
-  if((SETTINGS.strictMode || isNoChangePlayer()) && s.answered && !isAdmin()){
-    return;
-  }
-
-  const isCorrect = pickedIndex === q.correctIndex;
-
-  s.answered = true;
-  s.pickedIndex = pickedIndex;
-  s.correct = isCorrect;
-
-  paintAnsweredState();
-  showFeedback(isCorrect, q);
-
-  // lock timer starten
-  if(SETTINGS.nextLock && isTimedPlayer()){
-    const lockSec = getLockSeconds();
-    s.nextReadyAt = Date.now() + (lockSec * 1000);
-  }
-
-  applyNextRules();
-}
-
-function applyNextRules(){
-  const s = state[currentIndex];
-
-  // admin: altijd vrij door
-  if(isAdmin()){
-    nextBtn.disabled = false;
-    nextBtn.classList.remove("ghosted");
-    lockLine.textContent = "";
-    return;
-  }
-
-  // moet eerst antwoorden (voor iedereen behalve admin)
-  if(!s.answered){
-    nextBtn.disabled = true;
-    nextBtn.classList.add("ghosted");
-    lockLine.textContent = "Beantwoord eerst.";
-    return;
-  }
-
-  // geen next-lock? direct door
-  if(!SETTINGS.nextLock || !isTimedPlayer()){
-    nextBtn.disabled = false;
-    nextBtn.classList.remove("ghosted");
-    lockLine.textContent = "";
-    return;
-  }
-
-  // next-lock countdown
-  const target = s.nextReadyAt || Date.now();
-  nextBtn.disabled = true;
-  nextBtn.classList.add("ghosted");
-
-  const tick = () => {
-    const msLeft = target - Date.now();
-    const secLeft = Math.max(0, Math.ceil(msLeft / 1000));
-
-    if(msLeft <= 0){
-      clearInterval(lockInterval);
-      lockInterval = null;
-      nextBtn.disabled = false;
-      nextBtn.classList.remove("ghosted");
-      setNextLabel();
-      lockLine.textContent = "";
-      return;
-    }
-
-    const base = (currentIndex === QUESTIONS.length - 1) ? "RESULTAAT" : "VOLGENDE";
-    nextBtn.textContent = `${base} (${secLeft})`;
-    lockLine.textContent = `Even wachten… ${secLeft}s`;
-  };
-
-  if(lockInterval) clearInterval(lockInterval);
-  tick();
-  lockInterval = setInterval(tick, 200);
-}
-
 // NAV
 backBtn.onclick = () => {
   if(currentIndex === 0) return;
@@ -552,41 +423,33 @@ backBtn.onclick = () => {
 
 nextBtn.onclick = () => {
   const s = state[currentIndex];
-
-  if(!isAdmin() && !s.answered) return;
-  if(!isAdmin() && SETTINGS.nextLock && isTimedPlayer() && s.nextReadyAt && s.nextReadyAt > Date.now()) return;
+  if(!s.answered) return;
 
   if(currentIndex < QUESTIONS.length - 1){
     currentIndex++;
     renderQuestion();
     scrollToTop();
-  }else{
+  } else {
     renderResult();
     scrollToTop();
   }
 };
 
-// =====================================================
-// ✅ Result + review
-// =====================================================
 function renderResult(){
-  clearTimers();
   show(resultView);
 
   const good = state.filter(s => s.answered && s.correct).length;
   const bad  = state.filter(s => s.answered && !s.correct).length;
   const total = QUESTIONS.length;
 
-  const name = currentPlayer?.name || "Speler";
-
-  resultSummary.textContent = `${name}: ${good} goed • ${bad} fout`;
+  resultSummary.textContent = `Score: ${good} goed • ${bad} fout`;
   resultMeta.textContent = `Afgerond op ${nowStamp()}`;
 
   dipGood.textContent = String(good);
   dipBad.textContent = String(bad);
   dipTotal.textContent = String(total);
 
-  diplomaMeta.textContent = `${name} • ${nowStamp()}`;
+  diplomaMeta.textContent = `Singleplayer • ${nowStamp()}`;
 
   buildReviewList({ onlyWrong:false });
 }
@@ -607,8 +470,8 @@ function buildReviewList({ onlyWrong }){
     const row = document.createElement("div");
     row.className = "reviewRow";
     row.innerHTML = `
-      <div class="reviewThumb">
-        <img data-lightbox="1" src="${q.image || ""}" alt="Vraag ${i+1}">
+      <div class="reviewThumb ${q.image ? "" : "hidden"}">
+        ${q.image ? `<img data-lightbox="1" src="${q.image}" alt="Vraag ${i+1}">` : ""}
       </div>
       <div class="reviewInfo">
         <h4>${i+1}. ${q.vraag}</h4>
@@ -632,22 +495,16 @@ function wireReviewLightbox(){
   });
 }
 
-// Buttons
-restartBtn.onclick = () => {
-  clearTimers();
-  quizStarted = false;
-  currentPlayer = null;
-  startBtn.disabled = true;
-  pickedNameEl.textContent = "—";
-  [...playersEl.children].forEach(c => c.classList.remove("selected"));
-  show(playerView);
+startBtn.onclick = () => {
+  quizStarted = true;
+  show(quizView);
+  renderQuestion();
   scrollToTop();
 };
+
+restartBtn.onclick = () => resetGame();
+resetBtn.onclick = () => resetGame();
 
 showWrongBtn.onclick = () => buildReviewList({ onlyWrong:true });
 showAllBtn.onclick = () => buildReviewList({ onlyWrong:false });
 toTopBtn.onclick = () => scrollToTop();
-
-// Init
-renderPlayers();
-renderModeLine();
