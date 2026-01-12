@@ -1,10 +1,9 @@
-/* style.css — RoddelPraat-ish vibe (paars/zwart/wit/geel) */
+/* style.css */
 :root{
   --purple:#7a2cff;
   --purple2:#5b19ff;
   --black:#0b0b10;
   --card:#11111a;
-  --card2:#151523;
 
   --yellow:#ffd400;
   --text: rgba(255,255,255,.92);
@@ -73,22 +72,49 @@ body{
 .view{display:none;padding:22px}
 .view.active{display:block}
 
-/* Hero */
-.hero{
+/* Fullscreen start */
+.startFull{
+  min-height: calc(100vh - 70px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0;
+  position:relative;
+  overflow:hidden;
+}
+.startCenter{
   text-align:center;
-  padding: 26px 10px 8px;
+  padding: 32px 18px;
+  z-index:2;
 }
-.heroTitle{
-  font-size: 40px;
-  margin: 0 0 8px;
+.startTitle{
+  font-size: clamp(42px, 6vw, 88px);
   font-weight: 1000;
-  letter-spacing: .6px;
+  letter-spacing: 1.2px;
+  margin: 0 0 18px;
+  text-shadow: 0 10px 40px rgba(0,0,0,.55);
 }
-.heroText{
-  margin: 0 auto 18px;
-  max-width: 700px;
-  opacity: .86;
-  line-height: 1.45;
+.startBtn{
+  font-size: 22px;
+  padding: 16px 30px;
+  border-radius: 24px;
+  min-width: 200px;
+}
+
+.startGlow{
+  position:absolute;
+  inset:-40%;
+  background:
+    radial-gradient(circle at 45% 45%, rgba(122,44,255,.25), transparent 55%),
+    radial-gradient(circle at 55% 55%, rgba(255,212,0,.14), transparent 52%);
+  filter: blur(2px);
+  z-index:1;
+  animation: floatGlow 10s ease-in-out infinite;
+}
+@keyframes floatGlow{
+  0%{ transform: translate3d(-1%, -1%, 0) scale(1.02); }
+  50%{ transform: translate3d(1%, 1%, 0) scale(1.04); }
+  100%{ transform: translate3d(-1%, -1%, 0) scale(1.02); }
 }
 
 /* Panels */
@@ -105,21 +131,10 @@ body{
 .subtitle{font-size:18px;opacity:.95;margin:0 0 10px}
 .tinyNote{font-size:14px;opacity:.78;margin-top:8px}
 
-.bullets{display:grid;gap:10px}
-.bullet{
-  padding:12px 12px;
-  border-radius: 18px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.18);
-}
+.hidden{display:none}
 
 /* Quiz top */
-.quizTopRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
+.quizTopRow{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .stats{ text-align:left; }
 .statsLine{ font-size:16px; opacity:.92; font-weight:900; }
 .statsMini{ font-size:12px; opacity:.72; margin-top:3px; }
@@ -167,8 +182,6 @@ body{
   color: var(--text);
 }
 
-.hidden{display:none}
-
 /* Answers */
 .answers{display:grid;gap:12px;margin-bottom:12px}
 .answerBtn{
@@ -187,19 +200,9 @@ body{
   border-color: rgba(255,212,0,.30);
   background: rgba(255,212,0,.06);
 }
-.answerBtn:disabled{
-  opacity: 1;
-  cursor: default;
-  transform:none;
-}
-.answerBtn.wrong{
-  background: rgba(255,59,98,.14);
-  border-color: rgba(255,59,98,.72);
-}
-.answerBtn.correct{
-  background: rgba(46,204,113,.16);
-  border-color: rgba(46,204,113,.70);
-}
+.answerBtn:disabled{opacity:1;cursor:default;transform:none}
+.answerBtn.wrong{background: rgba(255,59,98,.14);border-color: rgba(255,59,98,.72)}
+.answerBtn.correct{background: rgba(46,204,113,.16);border-color: rgba(46,204,113,.70)}
 
 /* Feedback */
 .feedback{
@@ -217,11 +220,7 @@ body{
 .feedbackBody p{margin:0 0 10px}
 
 /* Controls */
-.quizControls{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-}
+.quizControls{display:flex;justify-content:space-between;gap:10px}
 
 /* Buttons */
 button{border:none}
@@ -234,8 +233,6 @@ button, .btnGhost{
   align-items:center;
   justify-content:center;
 }
-.bigBtn{font-size:20px;padding:14px 26px}
-
 .btnPrimary{
   background: linear-gradient(135deg, var(--purple), var(--purple2));
   color: white;
@@ -250,7 +247,6 @@ button, .btnGhost{
     0 14px 34px rgba(122,44,255,.22);
   transform: translateY(-1px);
 }
-
 .btnGhost{
   background: rgba(255,255,255,0.06);
   color: var(--text);
@@ -409,7 +405,6 @@ button:disabled{opacity:.55; cursor:not-allowed}
 @media (max-width: 720px){
   .view{padding:18px}
   button, .btnGhost{font-size:16px; padding:12px 16px}
-  .bigBtn{font-size:18px}
   .reviewRow{flex-direction:column}
   .reviewThumb{flex:0 0 auto; width:100%; height:180px}
 }
