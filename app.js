@@ -3,7 +3,7 @@
 const $ = (id) => document.getElementById(id);
 
 /* ====== CONFIG ====== */
-const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- vervang met jouw invite
+const DISCORD_INVITE_URL = "https://discord.gg/ZjPFR2yJVQ"; // <- vervang met jouw invite
 const DISCORD_ICON_SRC = "discord.png";                  // <- vervang als je andere filename gebruikt
 /* ==================== */
 
