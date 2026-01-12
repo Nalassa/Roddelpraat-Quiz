@@ -1,4 +1,11 @@
+// app.js — Singleplayer RoddelPraat Quiz (Discord button in topbar)
+
 const $ = (id) => document.getElementById(id);
+
+/* ====== CONFIG ====== */
+const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- vervang met jouw invite
+const DISCORD_ICON_SRC = "discord.png";                  // <- vervang als je andere filename gebruikt
+/* ==================== */
 
 function show(view){
   [startView, quizView, resultView].forEach(v => v.classList.remove("active"));
@@ -18,10 +25,8 @@ function nowStamp(){
 }
 
 /**
- * LET OP:
- * - Geen “roddels over personen” als feit.
- * - Alleen publiek beschreven, controleerbare info over de show/geschiedenis/format/rechtszaken.
- * - Geen datumvragen (op verzoek).
+ * Geen datumvragen (op verzoek).
+ * Alleen publiek beschreven, controleerbare info over de show/format/rechtszaken.
  */
 const QUESTIONS = [
   {
@@ -137,18 +142,6 @@ const QUESTIONS = [
     uitleg: "In berichtgeving wordt genoemd dat de uitzending offline moest en er een rectificatie moest komen."
   },
   {
-    meta: "Famke Louise-zaak",
-    vraag: "Wat werd (in grote lijn) als probleem genoemd in de berichtgeving rondom die uitzending?",
-    antwoorden: [
-      "Onrechtmatige publicatie / inbreuk (o.a. privacy/ongegrond) volgens rechterlijke beoordeling",
-      "Alleen ‘te hard geluid’ in de video",
-      "Te lange aflevering",
-      "Foutieve ondertiteling"
-    ],
-    correctIndex: 0,
-    uitleg: "Publieke samenvattingen koppelen het aan onrechtmatigheid/inbreuk en de noodzaak tot rectificatie."
-  },
-  {
     meta: "Controverse (algemeen)",
     vraag: "Welke beschrijving past het best bij de kritiek die vaak wordt genoemd?",
     antwoorden: [
@@ -170,7 +163,7 @@ const QUESTIONS = [
   {
     meta: "Gasten",
     vraag: "Welke van deze namen is (publiek) genoemd als gast (selectie-lijst)?",
-    antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes Jr."],
+    antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "Eva Simons"],
     correctIndex: 0,
     uitleg: "Henk Krol staat in publieke gastenselecties genoemd."
   },
@@ -199,7 +192,9 @@ const quizView = $("quizView");
 const resultView = $("resultView");
 
 const startBtn = $("startBtn");
-const resetBtn = $("resetBtn");
+
+const discordBtn = $("discordBtn");
+const discordIcon = $("discordIcon");
 
 const statsEl = $("stats");
 const statsMini = $("statsMini");
@@ -237,6 +232,10 @@ const toTopBtn = $("toTopBtn");
 const lightbox = $("lightbox");
 const lightboxImg = $("lightboxImg");
 const lightboxClose = $("lightboxClose");
+
+/* Apply Discord config */
+if(discordBtn) discordBtn.href = DISCORD_INVITE_URL;
+if(discordIcon) discordIcon.src = DISCORD_ICON_SRC;
 
 function openLightbox(src, alt){
   if(!src) return;
@@ -449,15 +448,15 @@ function wireReviewLightbox(){
   });
 }
 
-// Start/Reset
+// Start/Restart
 startBtn.onclick = () => {
   quizStarted = true;
   show(quizView);
   renderQuestion();
   scrollToTop();
 };
+
 restartBtn.onclick = () => resetGame();
-resetBtn.onclick = () => resetGame();
 
 showWrongBtn.onclick = () => buildReviewList({ onlyWrong:true });
 showAllBtn.onclick = () => buildReviewList({ onlyWrong:false });
