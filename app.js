@@ -111,7 +111,19 @@ document.addEventListener("DOMContentLoaded", () => {
       image: "img/kevin.jpg",
       antwoorden: ["Kevin", "Sjaak", "Karel", "Bram"],
       uitleg: "‘Kevin’ wordt vaak als meme-woord gebruikt."
-    }
+    },
+    {
+      vraag: "Hoe oud is Jan?",
+      image: "img/leeftijd.jpg", 
+      antwoorden: ["45+", "50+", "40+", "55+"],
+      uitleg: "Geboren 27 januari 1977"
+  },
+    {
+    vraag: "Waarom heeft de ze bijnaam Soef de Haas?",
+    image: "img/haas.jpg", 
+    antwoorden: ["Vanwege haar tanden", "vanwege haar oren", "vanwege haar voorhoofd", "vanwege haar neus"],
+    uitleg: "Grote voortanden. De paashaas is er niks bij."
+}
   ];
 
   let started = false;
