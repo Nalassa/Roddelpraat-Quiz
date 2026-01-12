@@ -1,4 +1,4 @@
-// app.js — Singleplayer RoddelPraat Quiz (hard mode)
+// app.js — Singleplayer RoddelPraat Quiz (zonder datumvragen)
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,221 +20,182 @@ function nowStamp(){
 }
 
 /**
- * Vragen zijn gebaseerd op publiek beschreven feiten (o.a. Wikipedia + Rechtspraak + NOS/NU + Roddelpraat-site).
- * Geen “roddels over personen” als feit; alleen controleerbare data/structuur/geschiedenis/juridische uitspraken.
+ * LET OP:
+ * - Geen “roddels over personen” als feit.
+ * - Alleen publiek beschreven, controleerbare info over de show/geschiedenis/format/rechtszaken.
+ * - Geen datumvragen (op verzoek).
  */
 const QUESTIONS = [
   {
-    meta: "Geschiedenis",
-    vraag: "Wat is de startdatum van RoddelPraat (eerste aflevering)?",
-    antwoorden: ["13 maart 2020", "13 maart 2021", "2 juni 2020", "19 september 2021"],
+    meta: "Basis",
+    vraag: "Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
+    antwoorden: ["Dennis Schouten & Jan Roos", "Dennis Schouten & Mark Baanders", "Jan Roos & Thierry Baudet", "Mark Baanders & Giel Beelen"],
     correctIndex: 0,
-    uitleg: "De serie startte op 13 maart 2020."
-  },
-  {
-    meta: "Geschiedenis",
-    vraag: "Wie presenteerde (naast Dennis) in de eerste afleveringen vóór Jan vaste host werd?",
-    antwoorden: ["Mark Baanders", "Thierry Baudet", "Giel Beelen", "Henk Krol"],
-    correctIndex: 0,
-    uitleg: "Mark Baanders presenteerde in het begin (aflevering 1 t/m 3)."
-  },
-  {
-    meta: "Format",
-    vraag: "Wat is de uploadfrequentie zoals vaak wordt beschreven (publiek)?",
-    antwoorden: ["1× per week, extra voor donateurs", "Dagelijks", "1× per maand", "Alleen live-streams"],
-    correctIndex: 0,
-    uitleg: "Vaak genoemd: 1× per week, en extra content voor donateurs."
-  },
-  {
-    meta: "Geschiedenis",
-    vraag: "Na hoeveel afleveringen stopte de show in mei 2020 (zoals beschreven)?",
-    antwoorden: ["7", "3", "10", "21"],
-    correctIndex: 0,
-    uitleg: "Er wordt beschreven dat het na zeven afleveringen stopte (13 mei 2020), waarna men in eigen beheer verder ging."
-  },
-  {
-    meta: "Talpa-periode",
-    vraag: "Op welke datum werd bekend dat er een contract met Talpa Network was getekend (zoals vaak genoemd)?",
-    antwoorden: ["2 juni 2020", "6 september 2021", "16 maart 2022", "24 juli 2020"],
-    correctIndex: 0,
-    uitleg: "2 juni 2020 wordt genoemd als moment waarop bekend werd dat er een contract was."
-  },
-  {
-    meta: "Talpa-periode",
-    vraag: "Hoe lang duurde de samenwerking met Talpa ongeveer voordat die weer stopte (globaal)?",
-    antwoorden: ["Nog geen maand", "Ongeveer 2 jaar", "Ongeveer 6 maanden", "Meer dan 5 jaar"],
-    correctIndex: 0,
-    uitleg: "De samenwerking wordt beschreven als kort; binnen ongeveer een maand was het weer voorbij."
-  },
-  {
-    meta: "Awards",
-    vraag: "In welk jaar wordt de 100k Creator Award (100k abonnees) genoemd?",
-    antwoorden: ["2021", "2020", "2022", "2024"],
-    correctIndex: 0,
-    uitleg: "De 100k Creator Award wordt genoemd bij 2021."
-  },
-  {
-    meta: "Televizier-zaak",
-    vraag: "Welke prijs/categorie speelde de rechtszaak in 2021 rond uitsluiting?",
-    antwoorden: ["Televizier-Ster Online-videoserie", "Gouden Televizier-Ring", "Zilveren Nipkowschijf", "NPO Podcast Award"],
-    correctIndex: 0,
-    uitleg: "Het ging om de Televizier-Ster Online-videoserie."
-  },
-  {
-    meta: "Televizier-zaak",
-    vraag: "Wat was (heel kort) de uitkomst van het kort geding rond Televizier (zoals samengevat)?",
-    antwoorden: [
-      "Onzorgvuldig/onrechtmatig, maar geen verplichting tot toelaten",
-      "Volledig gelijk en alsnog verplicht toegelaten",
-      "Volledig ongelijk en schadevergoeding aan Televizier",
-      "Zaak werd niet-ontvankelijk verklaard"
-    ],
-    correctIndex: 0,
-    uitleg: "Samengevat: organisatie handelde onzorgvuldig/onrechtmatig, maar RoddelPraat hoefde niet alsnog toegelaten te worden."
-  },
-  {
-    meta: "Televizier-zaak",
-    vraag: "Welke datum wordt genoemd als uitspraakdag (kop-staartvonnis) in 2021?",
-    antwoorden: ["6 september 2021", "2 september 2021", "20 september 2021", "17 augustus 2021"],
-    correctIndex: 0,
-    uitleg: "6 september 2021 wordt genoemd als dag van het (kop-staart)vonnis."
-  },
-  {
-    meta: "Rechtspraak",
-    vraag: "Welke datum wordt genoemd voor de uitspraak in het kort geding van Famke Louise tegen RoddelPraat?",
-    antwoorden: ["16 maart 2022", "4 maart 2022", "13 december 2022", "23 maart 2022"],
-    correctIndex: 0,
-    uitleg: "De uitspraak werd gedaan op 16 maart 2022."
-  },
-  {
-    meta: "Rechtspraak",
-    vraag: "Wat moest er volgens berichtgeving gebeuren met de betreffende aflevering in de Famke Louise-zaak?",
-    antwoorden: [
-      "Offline halen + rectificeren",
-      "Alleen leeftijdsrestrictie instellen",
-      "Alleen comments uitzetten",
-      "Alleen titel aanpassen"
-    ],
-    correctIndex: 0,
-    uitleg: "Berichtgeving noemt: offline halen en rectificeren."
-  },
-  {
-    meta: "Rechtspraak",
-    vraag: "Wat zei de berichtgeving (kort) over de aard van de gewraakte uitspraken in de Famke Louise-zaak?",
-    antwoorden: [
-      "Onjuist en ongegrond",
-      "Volledig bewezen",
-      "Satire dus automatisch toegestaan",
-      "Niet beoordeeld door de rechter"
-    ],
-    correctIndex: 0,
-    uitleg: "Er werd bericht dat uitspraken ‘onjuist en ongegrond’ waren en daarom gerectificeerd moesten worden."
-  },
-  {
-    meta: "Hoger beroep",
-    vraag: "Welke instantie publiceerde later een nieuwsbericht dat de uitzending jegens Famke Louise onrechtmatig was (hoger beroep)?",
-    antwoorden: ["Rechtspraak.nl (Gerechtshof Amsterdam)", "Raad van State", "Europees Hof", "Kamer van Koophandel"],
-    correctIndex: 0,
-    uitleg: "Er is een nieuwsbericht hierover gepubliceerd via Rechtspraak.nl (Gerechtshof Amsterdam)."
-  },
-  {
-    meta: "Mallorca",
-    vraag: "Welke reeks hoort bij RoddelPraat als ‘vierdelige videoserie’ rond uitgaan/reis?",
-    antwoorden: ["Jan en Dennis in Mallorca", "Jan en Dennis in Ibiza", "Kevin in Kuala Lumpur", "OJ op Oostende"],
-    correctIndex: 0,
-    uitleg: "Dat was ‘Jan en Dennis in Mallorca’."
-  },
-  {
-    meta: "Mallorca",
-    vraag: "Wat werd er (publiek) gezegd over aflevering 3 en 4 van die Mallorca-reeks?",
-    antwoorden: [
-      "Alleen voor betalende abonnees",
-      "Helemaal gecanceld en nooit gemaakt",
-      "Exclusief op TV uitgezonden",
-      "Alleen als podcast uitgebracht"
-    ],
-    correctIndex: 0,
-    uitleg: "Er werd beschreven dat 3 en 4 alleen voor betalende abonnees te zien zouden zijn."
-  },
-  {
-    meta: "Kanalenzet",
-    vraag: "Na de breuk met Talpa werd RoddelPraat vooral ondergebracht op…",
-    antwoorden: ["een eigen YouTube-kanaal ‘RoddelPraat’", "alleen NieuwNieuws", "alleen PowNed", "alleen TikTok"],
-    correctIndex: 0,
-    uitleg: "Het programma werd verplaatst naar een eigen YouTube-kanaal genaamd ‘RoddelPraat’."
-  },
-  {
-    meta: "Presentatie",
-    vraag: "Vanaf welke aflevering wordt Jan Roos als vaste presentator genoemd (naast Dennis)?",
-    antwoorden: ["Aflevering 4", "Aflevering 1", "Aflevering 2", "Aflevering 10"],
-    correctIndex: 0,
-    uitleg: "Jan Roos wordt genoemd vanaf aflevering 4."
-  },
-  {
-    meta: "Extra content",
-    vraag: "Waar wordt extra (donateurs-)materiaal genoemd dat niet aan YouTube-voorwaarden zou voldoen?",
-    antwoorden: ["Via backme / roddelpraat.app", "Alleen via NPO Start", "Alleen via Netflix", "Alleen via Twitch"],
-    correctIndex: 0,
-    uitleg: "Er wordt beschreven dat extra materiaal via het donateursplatform/roddelpraat.app beschikbaar is."
-  },
-  {
-    meta: "Televizier-zaak (details)",
-    vraag: "Welke omschrijving werd (publiek) genoemd als reden voor uitsluiting door de organisatie (parafrase)?",
-    antwoorden: [
-      "Zou groepen/personen consequent beledigen of wegzetten",
-      "Te weinig kijkers",
-      "Te veel sponsors",
-      "Te technisch van opzet"
-    ],
-    correctIndex: 0,
-    uitleg: "Publieke samenvattingen noemen als reden dat het programma ‘groepen/personen in de samenleving’ zou beledigen/wegzetten."
-  },
-  {
-    meta: "Nieuwsplatform",
-    vraag: "Welke NU.nl-pagina beschreef dat Dennis Schouten na Talpa overstapte naar een nieuwsplatform (GeenStijl-omgeving)?",
-    antwoorden: [
-      "NU.nl Media-artikel (24 juli 2020)",
-      "NU.nl Sportartikel (24 juli 2020)",
-      "NOS Liveblog (24 juli 2020)",
-      "RTL Weer (24 juli 2020)"
-    ],
-    correctIndex: 0,
-    uitleg: "NU.nl (Media) beschreef dit op 24 juli 2020."
+    uitleg: "De presentatie wordt doorgaans beschreven als Dennis Schouten en Jan Roos."
   },
   {
     meta: "Vroege periode",
-    vraag: "Wat was de bijnaam die Mark Baanders vaak wordt toegeschreven in deze context?",
-    antwoorden: ["Slijptol", "Lil Fat", "De Sniper", "De Kapitein"],
+    vraag: "Welke persoon presenteerde in het begin (eerste reeks afleveringen) naast Dennis, vóór Jan Roos vast werd?",
+    antwoorden: ["Mark Baanders", "Henk Krol", "Yvonne Coldeweijer", "Bender"],
     correctIndex: 0,
-    uitleg: "Mark Baanders wordt in deze context vaak ‘Slijptol’ genoemd."
+    uitleg: "In de vroege fase was Mark Baanders co-host."
   },
   {
-    meta: "RoddelPraat-site",
-    vraag: "Wat wordt op de site genoemd als voordeel van de officiële app voor donateurs (kort)?",
-    antwoorden: ["Exclusieve content (Extra) + community features", "Gratis bioscoopkaartjes", "Alleen merchandise", "Alleen Spotify-playlists"],
+    meta: "Vroege periode",
+    vraag: "Welke bijnaam wordt Mark Baanders in deze context vaak toegeschreven?",
+    antwoorden: ["Slijptol", "Lil Fat", "Jack Terrible", "Mr Nightlife"],
     correctIndex: 0,
-    uitleg: "De site noemt o.a. exclusieve content en community features."
+    uitleg: "Mark Baanders werd in deze context vaak 'Slijptol' genoemd."
   },
   {
-    meta: "Check je details",
-    vraag: "Welke combinatie klopt het best met de beschreven opzet?",
+    meta: "Format",
+    vraag: "Wat is de ‘basis’ release-constructie die vaak genoemd wordt?",
     antwoorden: [
-      "Wekelijkse YouTube-aflevering + extra uitzending voor betalende leden",
-      "Alleen betaalde afleveringen, nooit op YouTube",
-      "Alleen radio-uitzendingen",
-      "Alleen live shows in theaters"
+      "Wekelijks op YouTube + extra content voor betalende leden",
+      "Alleen betaalde afleveringen, nooit gratis",
+      "Alleen live op evenementen",
+      "Alleen korte TikTok-clips"
     ],
     correctIndex: 0,
-    uitleg: "Publieke beschrijving: wekelijks op YouTube, en extra voor betalende leden."
+    uitleg: "Publieke beschrijvingen noemen een wekelijkse YouTube-aflevering en extra uitzendingen/content voor betalende leden."
+  },
+  {
+    meta: "Extra content",
+    vraag: "Via welk type platform wordt doorgaans de betaalde extra content genoemd?",
+    antwoorden: ["Donateursplatform + app/site van RoddelPraat", "Netflix-abonnement", "NPO Start", "Spotify Premium"],
+    correctIndex: 0,
+    uitleg: "Er wordt beschreven dat extra uitzendingen via donateursplatformen en de RoddelPraat-app/site beschikbaar zijn."
+  },
+  {
+    meta: "Talpa-periode",
+    vraag: "Wat is de kern van wat er met de Talpa-samenwerking gebeurde (globaal)?",
+    antwoorden: [
+      "Er was kort een samenwerking, die snel weer stopte",
+      "Talpa produceert nog steeds elke aflevering",
+      "Talpa nam het YouTube-kanaal over",
+      "Talpa veranderde het naar een tv-programma op primetime"
+    ],
+    correctIndex: 0,
+    uitleg: "De samenwerking met Talpa wordt doorgaans beschreven als kort en later beëindigd."
+  },
+  {
+    meta: "Kanaal",
+    vraag: "Wat gebeurde er met de publicatieplek na de breuk met Talpa (globaal)?",
+    antwoorden: [
+      "Het verhuisde/ging door onder een eigen RoddelPraat YouTube-kanaal",
+      "Het stopte definitief",
+      "Het ging exclusief naar radio",
+      "Het werd alleen nog een podcast"
+    ],
+    correctIndex: 0,
+    uitleg: "RoddelPraat ging door op een eigen YouTube-kanaal."
+  },
+  {
+    meta: "Mallorca-reeks",
+    vraag: "Welke uitspraak past bij de ‘Jan en Dennis in Mallorca’-reeks zoals die vaak wordt omschreven?",
+    antwoorden: [
+      "Een vierdelige reeks; latere delen werden (deels) exclusief voor betalende leden genoemd",
+      "Een wekelijkse studio-uitzending met publiek",
+      "Een reeks over voetbaltransfers",
+      "Een documentaireserie op NPO"
+    ],
+    correctIndex: 0,
+    uitleg: "De reeks wordt beschreven als vierdelig; (minstens) deel van de reeks werd alleen voor betalende abonnees genoemd."
+  },
+  {
+    meta: "Televizier-zaak",
+    vraag: "Waarom werd RoddelPraat volgens publieke samenvattingen uitgesloten van de Televizier-categorie?",
+    antwoorden: [
+      "Omdat men vond dat het ‘groepen/personen’ beledigt/wegzet",
+      "Omdat het te weinig views had",
+      "Omdat het geen sponsors had",
+      "Omdat het niet op TV was"
+    ],
+    correctIndex: 0,
+    uitleg: "Publieke samenvattingen noemen als reden dat het programma groepen/personen zou beledigen of wegzetten."
+  },
+  {
+    meta: "Televizier-zaak",
+    vraag: "Wat is de beste samenvatting van de uitkomst van die Televizier-procedure?",
+    antwoorden: [
+      "Organisatie handelde onrechtmatig/onzorgvuldig, maar hoefde niet alsnog toe te laten",
+      "RoddelPraat werd verplicht toegelaten en won automatisch",
+      "RoddelPraat verloor volledig en moest schadevergoeding betalen",
+      "De zaak werd niet inhoudelijk behandeld"
+    ],
+    correctIndex: 0,
+    uitleg: "Samengevat: onzorgvuldig/onrechtmatig handelen, maar geen verplichting tot toelaten."
+  },
+  {
+    meta: "Famke Louise-zaak",
+    vraag: "Welke maatregel werd in berichtgeving genoemd als gevolg van het kort geding met Famke Louise?",
+    antwoorden: [
+      "De betreffende uitzending offline + rectificatie",
+      "Alleen comments uitzetten",
+      "Alleen thumbnail vervangen",
+      "Geen maatregel; alles mocht blijven"
+    ],
+    correctIndex: 0,
+    uitleg: "In berichtgeving wordt genoemd dat de uitzending offline moest en er een rectificatie moest komen."
+  },
+  {
+    meta: "Famke Louise-zaak",
+    vraag: "Wat werd (in grote lijn) als probleem genoemd in de berichtgeving rondom die uitzending?",
+    antwoorden: [
+      "Onrechtmatige publicatie / inbreuk (o.a. privacy/ongegrond) volgens rechterlijke beoordeling",
+      "Alleen ‘te hard geluid’ in de video",
+      "Te lange aflevering",
+      "Foutieve ondertiteling"
+    ],
+    correctIndex: 0,
+    uitleg: "Publieke samenvattingen koppelen het aan onrechtmatigheid/inbreuk en de noodzaak tot rectificatie."
+  },
+  {
+    meta: "Controverse (algemeen)",
+    vraag: "Welke beschrijving past het best bij de kritiek die vaak wordt genoemd?",
+    antwoorden: [
+      "Grove uitlatingen over bekende Nederlanders",
+      "Te technisch en te saai",
+      "Te sportgericht",
+      "Te kinderachtig voor volwassenen"
+    ],
+    correctIndex: 0,
+    uitleg: "Er wordt vaak kritiek genoemd op grove uitlatingen richting bekende Nederlanders."
+  },
+  {
+    meta: "Gasten",
+    vraag: "Welke van deze namen is (publiek) genoemd als gast (selectie-lijst)?",
+    antwoorden: ["Thierry Baudet", "Mark Rutte", "Arjen Lubach", "Eva Jinek"],
+    correctIndex: 0,
+    uitleg: "Thierry Baudet staat in publieke gastenselecties genoemd."
+  },
+  {
+    meta: "Gasten",
+    vraag: "Welke van deze namen is (publiek) genoemd als gast (selectie-lijst)?",
+    antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes Jr."],
+    correctIndex: 0,
+    uitleg: "Henk Krol staat in publieke gastenselecties genoemd."
+  },
+  {
+    meta: "Platform/Community",
+    vraag: "Wat wordt als kenmerk van de RoddelPraat-site/app vaak genoemd (globaal)?",
+    antwoorden: [
+      "Actuele nieuwspagina + community/reacties die terug kunnen komen",
+      "Alleen een webshop, geen content",
+      "Alleen een forum zonder video’s",
+      "Alleen een mailnieuwsbrief"
+    ],
+    correctIndex: 0,
+    uitleg: "Er wordt vaak genoemd: nieuws + reacties/community die terugkomen."
   }
 ];
 
-// Optional images per vraag (laat leeg = geen image). Voorbeeld:
-// QUESTIONS[0].image = "q1.jpg"
+// Optional images (laat leeg = geen image)
 for(const q of QUESTIONS){
   if(typeof q.image !== "string") q.image = "";
 }
 
+// Elements
 const startView = $("startView");
 const quizView = $("quizView");
 const resultView = $("resultView");
@@ -295,7 +256,6 @@ function closeLightbox(){
 lightboxClose.onclick = (e) => { e.stopPropagation(); closeLightbox(); };
 lightbox.onclick = () => closeLightbox();
 document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLightbox(); });
-
 imgZoomBtn.onclick = () => openLightbox(qImgEl.src, qTextEl.textContent);
 
 // State
@@ -331,7 +291,7 @@ function renderQuestion(){
   const s = state[currentIndex];
 
   statsEl.textContent = `Vraag ${currentIndex + 1} / ${QUESTIONS.length}`;
-  statsMini.textContent = `Gestart: ${quizStarted ? "ja" : "nee"} • Tijd: ${nowStamp()}`;
+  statsMini.textContent = `${nowStamp()}`;
 
   qNrEl.textContent = `Vraag ${currentIndex + 1}`;
   qTextEl.textContent = q.vraag;
@@ -340,18 +300,16 @@ function renderQuestion(){
   setNextLabel();
   backBtn.disabled = (currentIndex === 0);
 
-  // image (optional)
   if(q.image){
     mediaWrap.classList.remove("hidden");
     qImgEl.src = q.image;
     qImgEl.alt = q.vraag;
-  }else{
+  } else {
     mediaWrap.classList.add("hidden");
     qImgEl.src = "";
     qImgEl.alt = "";
   }
 
-  // answers
   answersEl.innerHTML = "";
   feedbackEl.classList.add("hidden");
   nextBtn.disabled = !s.answered;
@@ -374,9 +332,7 @@ function pickAnswer(pickedIndex){
   const q = QUESTIONS[currentIndex];
   const s = state[currentIndex];
 
-  // je mag hier wél wijzigen door opnieuw te klikken (geen lock/strict)
   const isCorrect = pickedIndex === q.correctIndex;
-
   s.answered = true;
   s.pickedIndex = pickedIndex;
   s.correct = isCorrect;
@@ -443,7 +399,7 @@ function renderResult(){
   const total = QUESTIONS.length;
 
   resultSummary.textContent = `Score: ${good} goed • ${bad} fout`;
-  resultMeta.textContent = `Afgerond op ${nowStamp()}`;
+  resultMeta.textContent = `${nowStamp()}`;
 
   dipGood.textContent = String(good);
   dipBad.textContent = String(bad);
@@ -495,13 +451,13 @@ function wireReviewLightbox(){
   });
 }
 
+// Start/Reset
 startBtn.onclick = () => {
   quizStarted = true;
   show(quizView);
   renderQuestion();
   scrollToTop();
 };
-
 restartBtn.onclick = () => resetGame();
 resetBtn.onclick = () => resetGame();
 
