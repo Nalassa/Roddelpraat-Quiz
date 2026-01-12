@@ -8,10 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const startBtn = $("startBtn");
 
   const stats = $("stats");
-  const mini = $("mini");
-  const qNr = $("qNr");
   const qText = $("qText");
-  const qMeta = $("qMeta");
   const answers = $("answers");
 
   const qMediaWrap = $("qMediaWrap");
@@ -25,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextBtn = $("nextBtn");
 
   const resultLine = $("resultLine");
-  const resultMini = $("resultMini");
   const goodEl = $("good");
   const badEl = $("bad");
   const totalEl = $("total");
@@ -41,22 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
     view.classList.add("active");
   }
 
-  function pad2(n){ return String(n).padStart(2,"0"); }
-  function stamp(){
-    const d = new Date();
-    return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  }
-
   function scrollToTop(){
     window.scrollTo({ top: 0, behavior: "smooth" });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
 
-  // Option A: local images in repo, e.g. img/dennis.jpg
   const QUESTIONS = [
     {
-      meta: "Basis",
       vraag: "Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
       image: "img/dennis-jan.jpg",
       antwoorden: ["Dennis Schouten & Jan Roos", "Dennis Schouten & Mark Baanders", "Jan Roos & Thierry Baudet", "Mark Baanders & Giel Beelen"],
@@ -64,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "RoddelPraat wordt doorgaans beschreven met Dennis Schouten en Jan Roos als vaste presentatie."
     },
     {
-      meta: "Vroege periode",
       vraag: "Wie was in de eerste fase co-host naast Dennis, vóór Jan Roos vast werd?",
       image: "img/mark.jpg",
       antwoorden: ["Mark Baanders", "Henk Krol", "Bender", "Giel Beelen"],
@@ -72,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "In de beginfase werd Mark Baanders genoemd als co-host."
     },
     {
-      meta: "Vroege periode",
       vraag: "Welke bijnaam wordt Mark Baanders in die context vaak toegeschreven?",
       image: "img/slijptol.jpg",
       antwoorden: ["Slijptol", "Mr Nightlife", "Lil Fat", "Jack Terrible"],
@@ -80,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "De bijnaam die je vaak ziet terugkomen is ‘Slijptol’."
     },
     {
-      meta: "Format",
       vraag: "Wat is de meest genoemde basis-opzet van de publicatie?",
       image: "img/youtube.jpg",
       antwoorden: [
@@ -93,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "Meestal: wekelijks op YouTube, plus extra content achter een donateursmodel."
     },
     {
-      meta: "Talpa",
       vraag: "Hoe wordt de Talpa-samenwerking meestal samengevat (globaal)?",
       image: "img/talpa.jpg",
       antwoorden: [
@@ -106,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "De samenwerking wordt doorgaans omschreven als kort en later beëindigd."
     },
     {
-      meta: "Gasten",
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
       image: "img/thierry.jpg",
       antwoorden: ["Thierry Baudet", "Eva Jinek", "Arjen Lubach", "Mark Rutte"],
@@ -114,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "Thierry Baudet wordt in gastenselecties genoemd."
     },
     {
-      meta: "Gasten",
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
       image: "img/henk.jpg",
       antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes"],
@@ -122,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "Henk Krol wordt in gastenselecties genoemd."
     },
     {
-      meta: "Extra",
       vraag: "Welke term wordt door fans vaak als geintje gebruikt voor ‘de typische supporter’?",
       image: "img/kevin.jpg",
       antwoorden: ["Kevin", "Sjaak", "Karel", "Bram"],
@@ -144,12 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const s = state[i];
 
     stats.textContent = `Vraag ${i+1} / ${QUESTIONS.length}`;
-    mini.textContent = stamp();
-
-    qNr.textContent = `Vraag ${i+1}`;
     qText.textContent = q.vraag;
 
-    // Image (Option A)
     if(q.image){
       qMediaWrap.style.display = "flex";
       qImg.src = q.image;
@@ -159,8 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
       qImg.src = "";
       qImg.alt = "";
     }
-
-    qMeta.textContent = q.meta ? `Categorie: ${q.meta}` : "—";
 
     answers.innerHTML = "";
     feedback.classList.add("hidden");
@@ -225,7 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const bad = state.filter(x => x.answered && !x.correct).length;
 
     resultLine.textContent = `Score: ${good} goed • ${bad} fout`;
-    resultMini.textContent = stamp();
 
     goodEl.textContent = String(good);
     badEl.textContent = String(bad);
