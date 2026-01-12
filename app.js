@@ -1,5 +1,3 @@
-// app.js — Singleplayer RoddelPraat Quiz (zonder datumvragen)
-
 const $ = (id) => document.getElementById(id);
 
 function show(view){
