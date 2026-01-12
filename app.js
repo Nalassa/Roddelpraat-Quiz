@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const $ = (id) => document.getElementById(id);
 
   // ===== CONFIG =====
-  const DISCORD_INVITE_URL = "https://discord.gg/ZjPFR2yJVQ"; // <- replace
+  const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- replace
   const DISCORD_ICON_SRC = "discord.png";                  // <- replace if needed
   // ==================
 
