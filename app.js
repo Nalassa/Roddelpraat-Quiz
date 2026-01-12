@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const qMeta = $("qMeta");
   const answers = $("answers");
 
+  const qMediaWrap = $("qMediaWrap");
+  const qImg = $("qImg");
+
   const feedback = $("feedback");
   const feedbackHead = $("feedbackHead");
   const feedbackBody = $("feedbackBody");
@@ -50,10 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.scrollTop = 0;
   }
 
+  // Option A: local images in repo, e.g. img/dennis.jpg
   const QUESTIONS = [
     {
       meta: "Basis",
       vraag: "Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
+      image: "img/dennis-jan.jpg",
       antwoorden: ["Dennis Schouten & Jan Roos", "Dennis Schouten & Mark Baanders", "Jan Roos & Thierry Baudet", "Mark Baanders & Giel Beelen"],
       correctIndex: 0,
       uitleg: "RoddelPraat wordt doorgaans beschreven met Dennis Schouten en Jan Roos als vaste presentatie."
@@ -61,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Vroege periode",
       vraag: "Wie was in de eerste fase co-host naast Dennis, vóór Jan Roos vast werd?",
+      image: "img/mark.jpg",
       antwoorden: ["Mark Baanders", "Henk Krol", "Bender", "Giel Beelen"],
       correctIndex: 0,
       uitleg: "In de beginfase werd Mark Baanders genoemd als co-host."
@@ -68,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Vroege periode",
       vraag: "Welke bijnaam wordt Mark Baanders in die context vaak toegeschreven?",
+      image: "img/slijptol.jpg",
       antwoorden: ["Slijptol", "Mr Nightlife", "Lil Fat", "Jack Terrible"],
       correctIndex: 0,
       uitleg: "De bijnaam die je vaak ziet terugkomen is ‘Slijptol’."
@@ -75,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Format",
       vraag: "Wat is de meest genoemde basis-opzet van de publicatie?",
+      image: "img/youtube.jpg",
       antwoorden: [
         "Een gratis wekelijkse YouTube-aflevering + extra content voor betalende leden",
         "Alleen betaalde afleveringen, nooit gratis",
@@ -87,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Talpa",
       vraag: "Hoe wordt de Talpa-samenwerking meestal samengevat (globaal)?",
+      image: "img/talpa.jpg",
       antwoorden: [
         "Kort; samenwerking stopte weer",
         "Talpa produceert het nog steeds",
@@ -99,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Gasten",
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
+      image: "img/thierry.jpg",
       antwoorden: ["Thierry Baudet", "Eva Jinek", "Arjen Lubach", "Mark Rutte"],
       correctIndex: 0,
       uitleg: "Thierry Baudet wordt in gastenselecties genoemd."
@@ -106,9 +116,18 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       meta: "Gasten",
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
+      image: "img/henk.jpg",
       antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes"],
       correctIndex: 0,
       uitleg: "Henk Krol wordt in gastenselecties genoemd."
+    },
+    {
+      meta: "Extra",
+      vraag: "Welke term wordt door fans vaak als geintje gebruikt voor ‘de typische supporter’?",
+      image: "img/kevin.jpg",
+      antwoorden: ["Kevin", "Sjaak", "Karel", "Bram"],
+      correctIndex: 0,
+      uitleg: "‘Kevin’ wordt vaak als meme-woord gebruikt (jij wilde de Kevin-meuk weg — deze kun je ook weghalen als je wil)."
     }
   ];
 
@@ -129,6 +148,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     qNr.textContent = `Vraag ${i+1}`;
     qText.textContent = q.vraag;
+
+    // Image (Option A)
+    if(q.image){
+      qMediaWrap.style.display = "flex";
+      qImg.src = q.image;
+      qImg.alt = q.vraag;
+    }else{
+      qMediaWrap.style.display = "none";
+      qImg.src = "";
+      qImg.alt = "";
+    }
+
     qMeta.textContent = q.meta ? `Categorie: ${q.meta}` : "—";
 
     answers.innerHTML = "";
