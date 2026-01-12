@@ -4,91 +4,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RoddelPraat Quiz</title>
-
   <meta name="theme-color" content="#0b0b10" />
-  <link rel="icon" href="assets/ui/favicon.png" />
-
+  <title>RoddelPraat Quiz</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <div class="wrap">
     <main class="card">
 
-      <!-- HEADER BAR -->
       <header class="topbar">
         <div class="brand">
-          <div class="brandDot" aria-hidden="true"></div>
+          <div class="brandMark" aria-hidden="true"></div>
           <div class="brandText">
             <div class="brandTitle">RODDELPRAAT QUIZ</div>
-            <div class="brandSub">Paars • Zwart • Wit • Geel</div>
+            <div class="brandSub">hard • feitjes • details</div>
           </div>
         </div>
 
         <div class="topbarRight">
-          <button class="btnGhost" id="settingsBtn" type="button" aria-label="Instellingen">
-            ⚙️ Instellingen
-          </button>
+          <button class="btnGhost" id="resetBtn" type="button">Reset</button>
         </div>
       </header>
 
-      <!-- START / PLAYER SELECT -->
-      <section class="view active" id="playerView">
-
+      <!-- START -->
+      <section class="view active" id="startView">
         <div class="hero">
-          <div class="heroBadge">💜😈</div>
-          <h1 class="heroTitle">Kies je personage</h1>
-          <p class="heroText">
-            Speel de quiz in RoddelPraat-stijl. Geen kerst. Wel chaos.
-          </p>
+          <h1 class="heroTitle">RoddelPraat Quiz</h1>
+          <p class="heroText">Singleplayer. Moeilijk. Geen onzin.</p>
+          <button class="btnPrimary bigBtn" id="startBtn" type="button">START</button>
         </div>
 
         <div class="panel">
-          <div class="subtitle">Wie ben jij vandaag?</div>
-          <div class="tinyNote">Tip: zet je eigen gifs in <code>assets/players/</code></div>
-
-          <div class="players" id="players"></div>
-
-          <div class="row">
-            <div class="noteBox">
-              <div class="noteTitle">Regels</div>
-              <ul class="noteList">
-                <li>Je kunt altijd terug (tenzij “Strict Mode” aan staat).</li>
-                <li>Optioneel: “Next lock” na antwoorden (anti-skip).</li>
-                <li>Admin speler kan alles (als je wil).</li>
-              </ul>
-            </div>
-
-            <div class="startBox">
-              <div class="tinyNote">Geselecteerd:</div>
-              <div class="pickedName" id="pickedName">—</div>
-              <button class="btnPrimary bigBtn" id="startBtn" disabled type="button">
-                START
-              </button>
-              <div class="tinyNote">Geen account. Geen cookies. Wel roddels.</div>
-            </div>
+          <div class="subtitle">Wat je krijgt</div>
+          <div class="bullets">
+            <div class="bullet">✔ Veel vragen (en lastiger dan “basis”)</div>
+            <div class="bullet">✔ Uitleg na elk antwoord</div>
+            <div class="bullet">✔ Resultaat + overzicht per vraag</div>
           </div>
         </div>
-
       </section>
 
       <!-- QUIZ -->
       <section class="view" id="quizView">
-
         <div class="quizTopRow">
-          <div class="youCard">
-            <img id="youImg" alt="Speler" />
-            <div class="youMeta">
-              <div class="youLabel">Jij:</div>
-              <div class="youName" id="youName">—</div>
-              <div class="youTag" id="youTag">—</div>
-            </div>
-          </div>
-
           <div class="stats">
             <div class="statsLine" id="stats">Vraag 1 / 1</div>
-            <div class="statsMini" id="modeLine">—</div>
+            <div class="statsMini" id="statsMini">—</div>
           </div>
         </div>
 
@@ -97,8 +58,8 @@
             <div class="qNr" id="qNr"></div>
             <div class="qText" id="qText"></div>
 
-            <div class="imgwrap" id="mediaWrap">
-              <img id="qImg" alt="Vraag afbeelding" />
+            <div class="imgwrap hidden" id="mediaWrap">
+              <img id="qImg" alt="" />
               <button class="imgZoom" id="imgZoom" type="button" aria-label="Afbeelding vergroten">🔍</button>
             </div>
 
@@ -117,15 +78,12 @@
               <button class="btnGhost" id="backBtn" disabled type="button">Terug</button>
               <button class="btnPrimary" id="nextBtn" disabled type="button">VOLGENDE</button>
             </div>
-
-            <div class="tinyNote" id="lockLine"></div>
           </div>
         </div>
       </section>
 
       <!-- RESULT -->
       <section class="view" id="resultView">
-
         <div class="rpHero">
           <div class="rpLogo">RODDELPRAAT QUIZ</div>
           <div id="resultSummary" class="subtitle" style="margin:12px 0 0;"></div>
@@ -134,7 +92,6 @@
 
         <div class="diplomaWrap">
           <div class="diplomaCard">
-
             <div class="diplomaTop">
               <div>
                 <div class="diplomaTitle">Score-overzicht</div>
@@ -164,50 +121,9 @@
             </div>
           </div>
         </div>
-
       </section>
 
     </main>
-  </div>
-
-  <!-- SETTINGS MODAL -->
-  <div class="modal hidden" id="settingsModal" aria-hidden="true">
-    <div class="modalCard" role="dialog" aria-modal="true" aria-label="Instellingen">
-      <div class="modalTop">
-        <div class="modalTitle">Instellingen</div>
-        <button class="btnGhost iconBtn" id="settingsClose" type="button" aria-label="Sluiten">✕</button>
-      </div>
-
-      <div class="modalGrid">
-        <label class="toggle">
-          <input type="checkbox" id="optStrict" />
-          <span>
-            <b>Strict mode</b><br/>
-            <small>Na antwoord kun je niet meer wijzigen (voor iedereen).</small>
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="optLock" checked />
-          <span>
-            <b>Next-lock</b><br/>
-            <small>Na antwoord moet je even wachten voordat je “Volgende” kan.</small>
-          </span>
-        </label>
-
-        <label class="toggle">
-          <input type="checkbox" id="optFade" />
-          <span>
-            <b>Afbeelding fade-in</b><br/>
-            <small>Afbeelding komt langzaam tevoorschijn (anti-spieken).</small>
-          </span>
-        </label>
-      </div>
-
-      <div class="modalBottom">
-        <button class="btnPrimary" id="settingsSave" type="button">Opslaan</button>
-      </div>
-    </div>
   </div>
 
   <!-- LIGHTBOX -->
