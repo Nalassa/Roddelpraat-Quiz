@@ -8,7 +8,6 @@
   --yellow:#ffd400;
 
   --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.70);
 
   --good:#2ecc71;
   --bad:#ff3b62;
@@ -32,14 +31,13 @@ body{
 
 .hidden{display:none !important}
 
-/* App */
 .app{
   min-height:100vh;
   display:flex;
   flex-direction:column;
 }
 
-/* Topbar: hidden on start */
+/* Topbar hidden on start */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -49,7 +47,7 @@ body{
   border-bottom:1px solid rgba(255,255,255,.10);
   background: linear-gradient(90deg, rgba(122,44,255,.18), rgba(255,212,0,.10));
 }
-body.mode-start .topbar{ display:none; } /* <<< HARD HIDE on start */
+body.mode-start .topbar{ display:none; }
 
 .brand{display:flex;align-items:center;gap:10px}
 .dot{
@@ -60,6 +58,7 @@ body.mode-start .topbar{ display:none; } /* <<< HARD HIDE on start */
 .brandTitle{font-weight:1000;letter-spacing:.7px}
 .brandSub{font-size:12px;opacity:.78;margin-top:2px}
 
+/* Discord button */
 .discordBtn{
   width:44px;height:44px;
   border-radius:16px;
@@ -84,10 +83,12 @@ body.mode-start .topbar{ display:none; } /* <<< HARD HIDE on start */
   display:block;
 }
 
-/* Views: ONLY active is visible (critical) */
-.view{ display:none; }               /* <<< HARD OFF */
-.view.active{ display:block; }       /* default */
-.startView.active{ display:flex; }   /* start uses flex */
+/* Views: only active shows */
+.view{ display:none; }
+.view.active{ display:block; }
+.startView.active{ display:flex; }
+
+/* Start */
 .startView{
   flex:1;
   min-height:100vh;
@@ -134,7 +135,7 @@ body.mode-start .topbar{ display:none; } /* <<< HARD HIDE on start */
   border-radius: 26px;
 }
 
-/* Cards */
+/* Card */
 .card{
   width:min(980px, calc(100% - 32px));
   margin: 18px auto;
