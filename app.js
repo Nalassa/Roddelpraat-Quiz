@@ -1,16 +1,64 @@
-// app.js — robust start button + no glow click issues (handled in CSS)
-
+// app.js
 document.addEventListener("DOMContentLoaded", () => {
   const $ = (id) => document.getElementById(id);
 
-  /* ====== CONFIG ====== */
-  const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- vervang met jouw invite
-  const DISCORD_ICON_SRC = "discord.png";                  // <- jouw image filename
-  /* ==================== */
+  // ===== CONFIG =====
+  const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- replace
+  const DISCORD_ICON_SRC = "discord.png";                  // <- replace if needed
+  // ==================
 
+  // Elements
+  const topbar = $("topbar");
+
+  const startView = $("startView");
+  const quizView = $("quizView");
+  const resultView = $("resultView");
+
+  const startBtn = $("startBtn");
+
+  const discordBtn = $("discordBtn");
+  const discordIcon = $("discordIcon");
+
+  const stats = $("stats");
+  const mini = $("mini");
+  const qNr = $("qNr");
+  const qText = $("qText");
+  const qMeta = $("qMeta");
+  const answers = $("answers");
+
+  const feedback = $("feedback");
+  const feedbackHead = $("feedbackHead");
+  const feedbackBody = $("feedbackBody");
+
+  const backBtn = $("backBtn");
+  const nextBtn = $("nextBtn");
+
+  const resultLine = $("resultLine");
+  const resultMini = $("resultMini");
+  const goodEl = $("good");
+  const badEl = $("bad");
+  const totalEl = $("total");
+  const reviewList = $("reviewList");
+
+  const showAllBtn = $("showAllBtn");
+  const showWrongBtn = $("showWrongBtn");
+  const toTopBtn = $("toTopBtn");
+  const restartBtn = $("restartBtn");
+
+  // Discord config
+  if(discordBtn) discordBtn.href = DISCORD_INVITE_URL;
+  if(discordIcon) discordIcon.src = DISCORD_ICON_SRC;
+
+  // Views
   function show(view){
     [startView, quizView, resultView].forEach(v => v && v.classList.remove("active"));
-    if(view) view.classList.add("active");
+    view.classList.add("active");
+  }
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function stamp(){
+    const d = new Date();
+    return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   }
 
   function scrollToTop(){
@@ -19,264 +67,179 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.scrollTop = 0;
   }
 
-  function pad2(n){ return String(n).padStart(2,"0"); }
-  function nowStamp(){
-    const d = new Date();
-    return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  }
-
+  // Questions (no date questions)
   const QUESTIONS = [
-    { meta:"Basis", vraag:"Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
-      antwoorden:["Dennis Schouten & Jan Roos","Dennis Schouten & Mark Baanders","Jan Roos & Thierry Baudet","Mark Baanders & Giel Beelen"],
-      correctIndex:0, uitleg:"De presentatie wordt doorgaans beschreven als Dennis Schouten en Jan Roos." },
-
-    { meta:"Vroege periode", vraag:"Welke persoon presenteerde in het begin naast Dennis, vóór Jan Roos vast werd?",
-      antwoorden:["Mark Baanders","Henk Krol","Yvonne Coldeweijer","Bender"],
-      correctIndex:0, uitleg:"In de vroege fase was Mark Baanders co-host." },
-
-    { meta:"Vroege periode", vraag:"Welke bijnaam wordt Mark Baanders in deze context vaak toegeschreven?",
-      antwoorden:["Slijptol","Lil Fat","Jack Terrible","Mr Nightlife"],
-      correctIndex:0, uitleg:"Mark Baanders werd in deze context vaak 'Slijptol' genoemd." },
-
-    { meta:"Format", vraag:"Wat is de ‘basis’ release-constructie die vaak genoemd wordt?",
-      antwoorden:["Wekelijks op YouTube + extra content voor betalende leden","Alleen betaalde afleveringen, nooit gratis","Alleen live op evenementen","Alleen korte TikTok-clips"],
-      correctIndex:0, uitleg:"Publieke beschrijvingen noemen een wekelijkse YouTube-aflevering en extra content voor betalende leden." },
-
-    { meta:"Extra content", vraag:"Via welk type platform wordt doorgaans de betaalde extra content genoemd?",
-      antwoorden:["Donateursplatform + app/site van RoddelPraat","Netflix-abonnement","NPO Start","Spotify Premium"],
-      correctIndex:0, uitleg:"Er wordt doorgaans verwezen naar donateursplatformen en de RoddelPraat-app/site." },
-
-    { meta:"Talpa-periode", vraag:"Wat is de kern van wat er met de Talpa-samenwerking gebeurde (globaal)?",
-      antwoorden:["Er was kort een samenwerking, die snel weer stopte","Talpa produceert nog steeds elke aflevering","Talpa nam het YouTube-kanaal over","Talpa veranderde het naar een tv-programma op primetime"],
-      correctIndex:0, uitleg:"De samenwerking wordt meestal beschreven als kort en later beëindigd." },
-
-    { meta:"Kanaal", vraag:"Wat gebeurde er met de publicatieplek na de breuk met Talpa (globaal)?",
-      antwoorden:["Het ging door onder een eigen RoddelPraat YouTube-kanaal","Het stopte definitief","Het ging exclusief naar radio","Het werd alleen nog een podcast"],
-      correctIndex:0, uitleg:"RoddelPraat ging door op een eigen YouTube-kanaal." },
-
-    { meta:"Mallorca-reeks", vraag:"Welke uitspraak past bij ‘Jan en Dennis in Mallorca’ zoals die vaak wordt omschreven?",
-      antwoorden:["Een vierdelige reeks; latere delen werden (deels) exclusief voor betalende leden genoemd","Een wekelijkse studio-uitzending met publiek","Een reeks over voetbaltransfers","Een documentaireserie op NPO"],
-      correctIndex:0, uitleg:"De reeks wordt vaak beschreven als vierdelig, met (minstens) delen achter paywall." },
-
-    { meta:"Televizier-zaak", vraag:"Waarom werd RoddelPraat volgens publieke samenvattingen uitgesloten van de Televizier-categorie?",
-      antwoorden:["Omdat men vond dat het ‘groepen/personen’ beledigt/wegzet","Omdat het te weinig views had","Omdat het geen sponsors had","Omdat het niet op TV was"],
-      correctIndex:0, uitleg:"Als reden wordt vaak genoemd dat het programma groepen/personen zou beledigen of wegzetten." },
-
-    { meta:"Televizier-zaak", vraag:"Wat is de beste samenvatting van de uitkomst van die procedure?",
-      antwoorden:["Organisatie handelde onzorgvuldig/onrechtmatig, maar hoefde niet alsnog toe te laten","RoddelPraat werd verplicht toegelaten en won automatisch","RoddelPraat verloor volledig en moest schadevergoeding betalen","De zaak werd niet inhoudelijk behandeld"],
-      correctIndex:0, uitleg:"Samengevat: onzorgvuldig/onrechtmatig handelen, maar geen verplichting tot toelaten." },
-
-    { meta:"Famke Louise-zaak", vraag:"Welke maatregel werd in berichtgeving genoemd als gevolg van het kort geding met Famke Louise?",
-      antwoorden:["De betreffende uitzending offline + rectificatie","Alleen comments uitzetten","Alleen thumbnail vervangen","Geen maatregel; alles mocht blijven"],
-      correctIndex:0, uitleg:"In berichtgeving wordt genoemd dat de uitzending offline moest en er een rectificatie moest komen." },
-
-    { meta:"Controverse", vraag:"Welke beschrijving past het best bij de kritiek die vaak genoemd wordt?",
-      antwoorden:["Grove uitlatingen over bekende Nederlanders","Te technisch en te saai","Te sportgericht","Te kinderachtig voor volwassenen"],
-      correctIndex:0, uitleg:"Er wordt vaak kritiek genoemd op grove uitlatingen richting bekende Nederlanders." },
-
-    { meta:"Gasten", vraag:"Welke van deze namen is (publiek) genoemd als gast (selectie-lijst)?",
-      antwoorden:["Thierry Baudet","Mark Rutte","Arjen Lubach","Eva Jinek"],
-      correctIndex:0, uitleg:"Thierry Baudet staat in publieke gastenselecties genoemd." },
-
-    { meta:"Gasten", vraag:"Welke van deze namen is (publiek) genoemd als gast (selectie-lijst)?",
-      antwoorden:["Henk Krol","Max Verstappen","Virgil van Dijk","Eva Simons"],
-      correctIndex:0, uitleg:"Henk Krol staat in publieke gastenselecties genoemd." },
-
-    { meta:"Platform/Community", vraag:"Wat wordt als kenmerk van de RoddelPraat-site/app vaak genoemd (globaal)?",
-      antwoorden:["Actuele nieuwspagina + community/reacties die terug kunnen komen","Alleen een webshop, geen content","Alleen een forum zonder video’s","Alleen een mailnieuwsbrief"],
-      correctIndex:0, uitleg:"Er wordt vaak genoemd: nieuws + reacties/community die terugkomen." },
+    {
+      meta: "Basis",
+      vraag: "Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
+      antwoorden: ["Dennis Schouten & Jan Roos", "Dennis Schouten & Mark Baanders", "Jan Roos & Thierry Baudet", "Mark Baanders & Giel Beelen"],
+      correctIndex: 0,
+      uitleg: "RoddelPraat wordt doorgaans beschreven met Dennis Schouten en Jan Roos als vaste presentatie."
+    },
+    {
+      meta: "Vroege periode",
+      vraag: "Wie was in de eerste fase co-host naast Dennis, vóór Jan Roos vast werd?",
+      antwoorden: ["Mark Baanders", "Henk Krol", "Bender", "Giel Beelen"],
+      correctIndex: 0,
+      uitleg: "In de beginfase werd Mark Baanders genoemd als co-host."
+    },
+    {
+      meta: "Vroege periode",
+      vraag: "Welke bijnaam wordt Mark Baanders in die context vaak toegeschreven?",
+      antwoorden: ["Slijptol", "Mr Nightlife", "Lil Fat", "Jack Terrible"],
+      correctIndex: 0,
+      uitleg: "De bijnaam die je vaak ziet terugkomen is ‘Slijptol’."
+    },
+    {
+      meta: "Format",
+      vraag: "Wat is de meest genoemde basis-opzet van de publicatie?",
+      antwoorden: [
+        "Een gratis wekelijkse YouTube-aflevering + extra content voor betalende leden",
+        "Alleen betaalde afleveringen, nooit gratis",
+        "Alleen korte clips op socials",
+        "Alleen live shows"
+      ],
+      correctIndex: 0,
+      uitleg: "Meestal: wekelijks op YouTube, plus extra content achter een donateursmodel."
+    },
+    {
+      meta: "Platform",
+      vraag: "Welke feature wordt vaak genoemd rond de RoddelPraat-site/app?",
+      antwoorden: [
+        "Nieuws + community/reacties die kunnen terugkomen",
+        "Alleen merch verkoop",
+        "Alleen een podcastspeler",
+        "Alleen tickets voor events"
+      ],
+      correctIndex: 0,
+      uitleg: "Er wordt vaak gesproken over nieuws + reacties/community."
+    },
+    {
+      meta: "Talpa",
+      vraag: "Hoe wordt de Talpa-samenwerking meestal samengevat (globaal)?",
+      antwoorden: [
+        "Kort; samenwerking stopte weer",
+        "Talpa produceert het nog steeds",
+        "Talpa maakte er een TV-prime-time show van",
+        "Talpa kocht het kanaal"
+      ],
+      correctIndex: 0,
+      uitleg: "De samenwerking wordt doorgaans omschreven als kort en later beëindigd."
+    },
+    {
+      meta: "Gasten",
+      vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
+      antwoorden: ["Thierry Baudet", "Eva Jinek", "Arjen Lubach", "Mark Rutte"],
+      correctIndex: 0,
+      uitleg: "Thierry Baudet wordt in gastenselecties genoemd."
+    },
+    {
+      meta: "Gasten",
+      vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
+      antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes"],
+      correctIndex: 0,
+      uitleg: "Henk Krol wordt in gastenselecties genoemd."
+    }
   ];
 
-  for(const q of QUESTIONS){
-    if(typeof q.image !== "string") q.image = "";
-  }
-
-  // Elements
-  const startView = $("startView");
-  const quizView = $("quizView");
-  const resultView = $("resultView");
-  const startBtn = $("startBtn");
-
-  const discordBtn = $("discordBtn");
-  const discordIcon = $("discordIcon");
-
-  const statsEl = $("stats");
-  const statsMini = $("statsMini");
-  const qNrEl = $("qNr");
-  const qTextEl = $("qText");
-  const qMetaEl = $("qMeta");
-
-  const mediaWrap = $("mediaWrap");
-  const qImgEl = $("qImg");
-  const imgZoomBtn = $("imgZoom");
-
-  const answersEl = $("answers");
-  const feedbackEl = $("feedback");
-  const feedbackHead = $("feedbackHead");
-  const feedbackBody = $("feedbackBody");
-
-  const backBtn = $("backBtn");
-  const nextBtn = $("nextBtn");
-
-  const resultSummary = $("resultSummary");
-  const resultMeta = $("resultMeta");
-  const dipGood = $("dipGood");
-  const dipBad = $("dipBad");
-  const dipTotal = $("dipTotal");
-  const diplomaMeta = $("diplomaMeta");
-  const reviewList = $("reviewList");
-
-  const restartBtn = $("restartBtn");
-  const showAllBtn = $("showAllBtn");
-  const showWrongBtn = $("showWrongBtn");
-  const toTopBtn = $("toTopBtn");
-
-  const lightbox = $("lightbox");
-  const lightboxImg = $("lightboxImg");
-  const lightboxClose = $("lightboxClose");
-
-  // Discord config
-  if(discordBtn) discordBtn.href = DISCORD_INVITE_URL;
-  if(discordIcon) discordIcon.src = DISCORD_ICON_SRC;
-
   // State
-  let quizStarted = false;
-  let currentIndex = 0;
-  let state = QUESTIONS.map(() => ({ answered:false, pickedIndex:null, correct:false }));
-
-  window.addEventListener("beforeunload", (e) => {
-    if(!quizStarted) return;
-    e.preventDefault();
-    e.returnValue = "";
-  });
+  let started = false;
+  let i = 0;
+  let state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
 
   function setNextLabel(){
-    if(!nextBtn) return;
-    nextBtn.textContent = (currentIndex === QUESTIONS.length - 1) ? "RESULTAAT" : "VOLGENDE";
+    nextBtn.textContent = (i === QUESTIONS.length - 1) ? "RESULTAAT" : "VOLGENDE";
   }
 
-  function openLightbox(src, alt){
-    if(!src || !lightbox || !lightboxImg) return;
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || "";
-    lightbox.classList.remove("hidden");
-    lightbox.setAttribute("aria-hidden","false");
-  }
-  function closeLightbox(){
-    if(!lightbox || !lightboxImg) return;
-    lightbox.classList.add("hidden");
-    lightbox.setAttribute("aria-hidden","true");
-    lightboxImg.src = "";
-    lightboxImg.alt = "";
-  }
-  if(lightboxClose) lightboxClose.onclick = (e) => { e.stopPropagation(); closeLightbox(); };
-  if(lightbox) lightbox.onclick = () => closeLightbox();
-  document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLightbox(); });
+  function render(){
+    const q = QUESTIONS[i];
+    const s = state[i];
 
-  if(imgZoomBtn){
-    imgZoomBtn.onclick = () => {
-      if(qImgEl && qImgEl.src) openLightbox(qImgEl.src, qTextEl ? qTextEl.textContent : "");
-    };
-  }
+    stats.textContent = `Vraag ${i+1} / ${QUESTIONS.length}`;
+    mini.textContent = stamp();
 
-  function renderQuestion(){
-    const q = QUESTIONS[currentIndex];
-    const s = state[currentIndex];
+    qNr.textContent = `Vraag ${i+1}`;
+    qText.textContent = q.vraag;
+    qMeta.textContent = q.meta ? `Categorie: ${q.meta}` : "—";
 
-    if(statsEl) statsEl.textContent = `Vraag ${currentIndex + 1} / ${QUESTIONS.length}`;
-    if(statsMini) statsMini.textContent = nowStamp();
+    answers.innerHTML = "";
+    feedback.classList.add("hidden");
 
-    if(qNrEl) qNrEl.textContent = `Vraag ${currentIndex + 1}`;
-    if(qTextEl) qTextEl.textContent = q.vraag;
-    if(qMetaEl) qMetaEl.textContent = q.meta ? `Categorie: ${q.meta}` : "—";
-
+    backBtn.disabled = (i === 0);
+    nextBtn.disabled = !s.answered;
     setNextLabel();
-    if(backBtn) backBtn.disabled = (currentIndex === 0);
 
-    if(mediaWrap && qImgEl){
-      if(q.image){
-        mediaWrap.classList.remove("hidden");
-        qImgEl.src = q.image;
-        qImgEl.alt = q.vraag;
-      } else {
-        mediaWrap.classList.add("hidden");
-        qImgEl.src = "";
-        qImgEl.alt = "";
-      }
-    }
-
-    if(answersEl){
-      answersEl.innerHTML = "";
-      q.antwoorden.forEach((txt, idx) => {
-        const b = document.createElement("button");
-        b.className = "answerBtn";
-        b.type = "button";
-        b.textContent = txt;
-        b.onclick = () => pickAnswer(idx);
-        answersEl.appendChild(b);
-      });
-    }
-
-    if(feedbackEl) feedbackEl.classList.add("hidden");
-    if(nextBtn) nextBtn.disabled = !s.answered;
+    q.antwoorden.forEach((t, idx) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "answerBtn";
+      b.textContent = t;
+      b.onclick = () => pick(idx);
+      answers.appendChild(b);
+    });
 
     if(s.answered){
-      paintAnsweredState();
-      showFeedback(s.correct, q);
+      paint();
+      showFeedback(q, s.correct);
     }
   }
 
-  function paintAnsweredState(){
-    const q = QUESTIONS[currentIndex];
-    const s = state[currentIndex];
-    if(!answersEl) return;
+  function pick(pickedIndex){
+    const q = QUESTIONS[i];
+    const s = state[i];
+    s.answered = true;
+    s.picked = pickedIndex;
+    s.correct = (pickedIndex === q.correctIndex);
 
-    const btns = [...answersEl.querySelectorAll("button")];
+    paint();
+    showFeedback(q, s.correct);
+
+    nextBtn.disabled = false;
+  }
+
+  function paint(){
+    const q = QUESTIONS[i];
+    const s = state[i];
+    const btns = [...answers.querySelectorAll("button")];
+
     btns.forEach((b, idx) => {
       b.classList.remove("correct","wrong");
-      if(s.answered && idx === q.correctIndex) b.classList.add("correct");
-      if(s.answered && s.pickedIndex === idx && idx !== q.correctIndex) b.classList.add("wrong");
+      if(idx === q.correctIndex) b.classList.add("correct");
+      if(s.picked === idx && idx !== q.correctIndex) b.classList.add("wrong");
     });
   }
 
-  function showFeedback(isCorrect, q){
-    if(!feedbackEl || !feedbackHead || !feedbackBody) return;
-
-    feedbackEl.classList.remove("hidden");
-    feedbackHead.textContent = isCorrect ? "✅ Goed!" : "❌ Fout!";
-    feedbackHead.className = "feedbackHead " + (isCorrect ? "good" : "bad");
-
-    const correct = q.antwoorden[q.correctIndex];
+  function showFeedback(q, ok){
+    feedback.classList.remove("hidden");
+    feedbackHead.textContent = ok ? "✅ Goed!" : "❌ Fout!";
+    feedbackHead.className = "feedbackHead " + (ok ? "good" : "bad");
     feedbackBody.innerHTML = `
-      <p><b>Juiste antwoord:</b> ${correct}</p>
+      <p><b>Juiste antwoord:</b> ${q.antwoorden[q.correctIndex]}</p>
       ${q.uitleg ? `<p><b>Uitleg:</b> ${q.uitleg}</p>` : ""}
     `;
   }
 
-  function pickAnswer(pickedIndex){
-    const q = QUESTIONS[currentIndex];
-    const s = state[currentIndex];
+  function renderResult(){
+    const good = state.filter(x => x.answered && x.correct).length;
+    const bad = state.filter(x => x.answered && !x.correct).length;
 
-    s.answered = true;
-    s.pickedIndex = pickedIndex;
-    s.correct = (pickedIndex === q.correctIndex);
+    resultLine.textContent = `Score: ${good} goed • ${bad} fout`;
+    resultMini.textContent = stamp();
 
-    paintAnsweredState();
-    showFeedback(s.correct, q);
+    goodEl.textContent = String(good);
+    badEl.textContent = String(bad);
+    totalEl.textContent = String(QUESTIONS.length);
 
-    if(nextBtn) nextBtn.disabled = false;
+    buildReview(false);
   }
 
-  function buildReviewList({ onlyWrong }){
-    if(!reviewList) return;
+  function buildReview(onlyWrong){
     reviewList.innerHTML = "";
 
-    QUESTIONS.forEach((q, i) => {
-      const s = state[i];
-      const isWrong = s.answered && !s.correct;
-      if(onlyWrong && !isWrong) return;
+    QUESTIONS.forEach((q, idx) => {
+      const s = state[idx];
+      if(onlyWrong && !(s.answered && !s.correct)) return;
 
-      const correct = q.antwoorden[q.correctIndex];
       const badge = s.answered
         ? (s.correct ? `<span class="badge good">✅ Goed</span>` : `<span class="badge bad">❌ Fout</span>`)
         : `<span class="badge">Niet beantwoord</span>`;
@@ -284,90 +247,75 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("div");
       row.className = "reviewRow";
       row.innerHTML = `
-        <div class="reviewThumb ${q.image ? "" : "hidden"}">
-          ${q.image ? `<img data-lightbox="1" src="${q.image}" alt="Vraag ${i+1}">` : ""}
+        <h4>${idx+1}. ${q.vraag}</h4>
+        <div class="reviewMeta">
+          ${badge}
+          <span><b>Juiste antwoord:</b> ${q.antwoorden[q.correctIndex]}</span>
         </div>
-        <div class="reviewInfo">
-          <h4>${i+1}. ${q.vraag}</h4>
-          <div class="reviewMeta">
-            ${badge}
-            <span><b>Juiste antwoord:</b> ${correct}</span>
-          </div>
-          ${q.uitleg ? `<div class="tinyNote" style="margin:8px 0 0; opacity:.92;"><b>Uitleg:</b> ${q.uitleg}</div>` : ""}
-        </div>
+        ${q.uitleg ? `<div class="mini" style="margin-top:8px;opacity:.86"><b>Uitleg:</b> ${q.uitleg}</div>` : ""}
       `;
       reviewList.appendChild(row);
     });
-
-    const imgs = reviewList.querySelectorAll('img[data-lightbox="1"]');
-    imgs.forEach(img => img.onclick = () => openLightbox(img.getAttribute("src"), img.getAttribute("alt")));
   }
 
-  function renderResult(){
-    show(resultView);
+  // Start button
+  startBtn.addEventListener("click", () => {
+    started = true;
 
-    const good = state.filter(s => s.answered && s.correct).length;
-    const bad  = state.filter(s => s.answered && !s.correct).length;
-    const total = QUESTIONS.length;
+    // show topbar after start
+    if(topbar) topbar.classList.remove("hidden");
 
-    if(resultSummary) resultSummary.textContent = `Score: ${good} goed • ${bad} fout`;
-    if(resultMeta) resultMeta.textContent = nowStamp();
-
-    if(dipGood) dipGood.textContent = String(good);
-    if(dipBad) dipBad.textContent = String(bad);
-    if(dipTotal) dipTotal.textContent = String(total);
-
-    if(diplomaMeta) diplomaMeta.textContent = `Singleplayer • ${nowStamp()}`;
-
-    buildReviewList({ onlyWrong:false });
-  }
-
-  // Handlers
-  startBtn.onclick = () => {
-    quizStarted = true;
+    // swap views
     show(quizView);
-    renderQuestion();
+    i = 0;
+    render();
     scrollToTop();
-  };
+  });
 
-  if(backBtn){
-    backBtn.onclick = () => {
-      if(currentIndex === 0) return;
-      currentIndex--;
-      renderQuestion();
+  backBtn.addEventListener("click", () => {
+    if(i === 0) return;
+    i--;
+    render();
+    scrollToTop();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if(!state[i].answered) return;
+
+    if(i < QUESTIONS.length - 1){
+      i++;
+      render();
       scrollToTop();
-    };
-  }
-
-  if(nextBtn){
-    nextBtn.onclick = () => {
-      const s = state[currentIndex];
-      if(!s.answered) return;
-
-      if(currentIndex < QUESTIONS.length - 1){
-        currentIndex++;
-        renderQuestion();
-        scrollToTop();
-      }else{
-        renderResult();
-        scrollToTop();
-      }
-    };
-  }
-
-  if(restartBtn){
-    restartBtn.onclick = () => {
-      quizStarted = false;
-      currentIndex = 0;
-      state = QUESTIONS.map(() => ({ answered:false, pickedIndex:null, correct:false }));
-      show(startView);
+    } else {
+      show(resultView);
+      renderResult();
       scrollToTop();
-    };
-  }
+    }
+  });
 
-  if(showWrongBtn) showWrongBtn.onclick = () => buildReviewList({ onlyWrong:true });
-  if(showAllBtn) showAllBtn.onclick = () => buildReviewList({ onlyWrong:false });
-  if(toTopBtn) toTopBtn.onclick = () => scrollToTop();
+  showAllBtn.addEventListener("click", () => buildReview(false));
+  showWrongBtn.addEventListener("click", () => buildReview(true));
 
-  console.log("✅ Loaded. Start button clickable.");
+  toTopBtn.addEventListener("click", () => scrollToTop());
+
+  restartBtn.addEventListener("click", () => {
+    started = false;
+    state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
+    i = 0;
+
+    // hide topbar on start again
+    if(topbar) topbar.classList.add("hidden");
+
+    show(startView);
+    scrollToTop();
+  });
+
+  // simple unload warn only after start
+  window.addEventListener("beforeunload", (e) => {
+    if(!started) return;
+    e.preventDefault();
+    e.returnValue = "";
+  });
+
+  console.log("✅ Loaded. Start is clickable (no overlay DIV).");
 });
