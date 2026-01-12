@@ -56,7 +56,6 @@ body.mode-start .topbar{ display:none; }
   box-shadow: 0 0 0 4px rgba(255,212,0,.16);
 }
 .brandTitle{font-weight:1000;letter-spacing:.7px}
-.brandSub{font-size:12px;opacity:.78;margin-top:2px}
 
 /* Discord button */
 .discordBtn{
@@ -167,7 +166,24 @@ body.mode-start .topbar{ display:none; }
 }
 .qNr{font-size:13px;opacity:.78}
 .qText{font-size:26px;font-weight:1000;margin:8px 0 6px}
-.qMeta{font-size:13px;opacity:.78}
+
+.qMedia{
+  margin-top: 12px;
+  display:flex;
+  justify-content:center;
+}
+.qImg{
+  width:100%;
+  max-width: 860px;
+  max-height: 420px;
+  object-fit: cover; /* change to contain if you prefer */
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.25);
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+
+.qMeta{font-size:13px;opacity:.78;margin-top: 12px}
 
 /* Answers */
 .answers{display:grid;gap:12px;margin-bottom: 12px}
@@ -306,4 +322,5 @@ button:disabled{opacity:.55; cursor:not-allowed}
 @media (max-width:720px){
   .card{width: calc(100% - 24px); padding: 14px}
   .answerBtn{font-size:18px}
+  .qImg{max-height: 320px}
 }
