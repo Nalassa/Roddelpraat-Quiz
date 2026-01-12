@@ -9,123 +9,92 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <main class="card">
+  <main class="app">
 
-      <header class="topbar">
-        <div class="brand">
-          <div class="brandMark" aria-hidden="true"></div>
-          <div class="brandText">
-            <div class="brandTitle">RODDELPRAAT QUIZ</div>
-            <div class="brandSub">Vragen • feitjes • details</div>
+    <!-- TOPBAR (hidden on start) -->
+    <header class="topbar hidden" id="topbar">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <div class="brandText">
+          <div class="brandTitle">RODDELPRAAT QUIZ</div>
+          <div class="brandSub">Vragen • feitjes • details</div>
+        </div>
+      </div>
+
+      <a class="discordBtn" id="discordBtn" href="#" target="_blank" rel="noopener" aria-label="Discord">
+        <img class="discordIcon" id="discordIcon" src="discord.png" alt="Discord">
+      </a>
+    </header>
+
+    <!-- START VIEW -->
+    <section class="view active startView" id="startView">
+      <div class="startInner">
+        <h1 class="startTitle">RODDELPRAAT QUIZ</h1>
+        <button class="btnPrimary startBtn" id="startBtn" type="button">START</button>
+      </div>
+    </section>
+
+    <!-- QUIZ VIEW -->
+    <section class="view" id="quizView">
+      <div class="card">
+        <div class="quizHeader">
+          <div class="stats" id="stats">Vraag 1 / 1</div>
+          <div class="mini" id="mini">—</div>
+        </div>
+
+        <div class="qBlock">
+          <div class="qNr" id="qNr">Vraag 1</div>
+          <div class="qText" id="qText">—</div>
+          <div class="qMeta" id="qMeta">—</div>
+        </div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="feedback hidden" id="feedback">
+          <div class="feedbackHead" id="feedbackHead"></div>
+          <div class="feedbackBody" id="feedbackBody"></div>
+        </div>
+
+        <div class="controls">
+          <button class="btnGhost" id="backBtn" type="button" disabled>Terug</button>
+          <button class="btnPrimary" id="nextBtn" type="button" disabled>VOLGENDE</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT VIEW -->
+    <section class="view" id="resultView">
+      <div class="card">
+        <div class="resultTop">
+          <div class="resultTitle">Resultaat</div>
+          <div class="resultLine" id="resultLine">—</div>
+          <div class="mini" id="resultMini">—</div>
+        </div>
+
+        <div class="pills">
+          <div class="pill good">Goed: <b id="good">0</b></div>
+          <div class="pill bad">Fout: <b id="bad">0</b></div>
+          <div class="pill">Totaal: <b id="total">0</b></div>
+        </div>
+
+        <div class="reviewHeader">
+          <div class="reviewTitle">Overzicht per vraag</div>
+          <div class="reviewBtns">
+            <button class="btnGhost" id="showAllBtn" type="button">Alles</button>
+            <button class="btnGhost" id="showWrongBtn" type="button">Alleen fout</button>
           </div>
         </div>
 
-        <div class="topbarRight">
-          <a class="discordBtn" id="discordBtn" href="#" target="_blank" rel="noopener" aria-label="Discord">
-            <img class="discordIcon" id="discordIcon" src="discord.png" alt="Discord">
-          </a>
+        <div class="reviewList" id="reviewList"></div>
+
+        <div class="controls end">
+          <button class="btnGhost" id="toTopBtn" type="button">Naar boven</button>
+          <button class="btnPrimary" id="restartBtn" type="button">Opnieuw</button>
         </div>
-      </header>
+      </div>
+    </section>
 
-      <!-- START (fullscreen) -->
-      <section class="view active startFull" id="startView">
-        <!-- Glow MUST NOT block clicks -->
-        <div class="startGlow" aria-hidden="true"></div>
-
-        <div class="startCenter">
-          <h1 class="startTitle">RODDELPRAAT QUIZ</h1>
-          <button class="btnPrimary startBtn" id="startBtn" type="button">START</button>
-        </div>
-      </section>
-
-      <!-- QUIZ -->
-      <section class="view" id="quizView">
-        <div class="quizTopRow">
-          <div class="stats">
-            <div class="statsLine" id="stats">Vraag 1 / 1</div>
-            <div class="statsMini" id="statsMini">—</div>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="panel qtop">
-            <div class="qNr" id="qNr"></div>
-            <div class="qText" id="qText"></div>
-
-            <div class="imgwrap hidden" id="mediaWrap">
-              <img id="qImg" alt="" />
-              <button class="imgZoom" id="imgZoom" type="button" aria-label="Afbeelding vergroten">🔍</button>
-            </div>
-
-            <div class="tinyNote" id="qMeta">—</div>
-          </div>
-
-          <div class="panel">
-            <div class="answers" id="answers"></div>
-
-            <div class="feedback hidden" id="feedback">
-              <div class="feedbackHead" id="feedbackHead"></div>
-              <div class="feedbackBody" id="feedbackBody"></div>
-            </div>
-
-            <div class="quizControls">
-              <button class="btnGhost" id="backBtn" disabled type="button">Terug</button>
-              <button class="btnPrimary" id="nextBtn" disabled type="button">VOLGENDE</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RESULT -->
-      <section class="view" id="resultView">
-        <div class="rpHero">
-          <div class="rpLogo">RODDELPRAAT QUIZ</div>
-          <div id="resultSummary" class="subtitle" style="margin:12px 0 0;"></div>
-          <div class="tinyNote" id="resultMeta"></div>
-        </div>
-
-        <div class="diplomaWrap">
-          <div class="diplomaCard">
-            <div class="diplomaTop">
-              <div>
-                <div class="diplomaTitle">Score-overzicht</div>
-                <div class="diplomaMeta" id="diplomaMeta">—</div>
-              </div>
-
-              <div class="diplomaStats">
-                <div class="pill good">Goed: <b id="dipGood">0</b></div>
-                <div class="pill bad">Fout: <b id="dipBad">0</b></div>
-                <div class="pill">Totaal: <b id="dipTotal">0</b></div>
-              </div>
-            </div>
-
-            <div class="reviewHeaderRow">
-              <div class="subtitle" style="margin:0;">Overzicht per vraag</div>
-              <div class="reviewActions">
-                <button class="btnGhost" id="showAllBtn" type="button">Alles</button>
-                <button class="btnGhost" id="showWrongBtn" type="button">Alleen fout</button>
-              </div>
-            </div>
-
-            <div class="reviewList" id="reviewList"></div>
-
-            <div class="endControls">
-              <button class="btnGhost" id="toTopBtn" type="button">Naar boven</button>
-              <button class="btnPrimary" id="restartBtn" type="button">Opnieuw</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- LIGHTBOX -->
-  <div class="lightbox hidden" id="lightbox" aria-hidden="true">
-    <button class="lightboxClose" id="lightboxClose" type="button" aria-label="Sluiten">✕</button>
-    <img id="lightboxImg" alt="" />
-  </div>
+  </main>
 
   <script src="app.js"></script>
 </body>
