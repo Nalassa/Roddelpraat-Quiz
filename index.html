@@ -152,13 +152,70 @@
               <div class="subtitle" style="margin:0;">Overzicht per vraag</div>
               <div class="reviewActions">
                 <button class="btnGhost" id="showAllBtn" type="button">Alles</button>
-                <butc="tye/n  < dse"r"i cl <lbiTpt n
- <obir=tu v d 
-/ m >-T
-lme=M"dt voa=otibl
-vs"v=ln
- obhn=C ta=t/o sa c=
-ue=" n < < a u ira n b lt t="oc < Nor <lo et“ / > 
-<lo> pc" < bin<>ltgrji. a >d
-iao" tst"ay"lt  >/ - sgdior"chx=trat<io"
-rpc>l
+                <button class="btnGhost" id="showWrongBtn" type="button">Alleen fout</button>
+              </div>
+            </div>
+
+            <div class="reviewList" id="reviewList"></div>
+
+            <div class="endControls">
+              <button class="btnGhost" id="toTopBtn" type="button">Naar boven</button>
+              <button class="btnPrimary" id="restartBtn" type="button">Opnieuw</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal hidden" id="settingsModal" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-label="Instellingen">
+      <div class="modalTop">
+        <div class="modalTitle">Instellingen</div>
+        <button class="btnGhost iconBtn" id="settingsClose" type="button" aria-label="Sluiten">✕</button>
+      </div>
+
+      <div class="modalGrid">
+        <label class="toggle">
+          <input type="checkbox" id="optStrict" />
+          <span>
+            <b>Strict mode</b><br/>
+            <small>Na antwoord kun je niet meer wijzigen (voor iedereen).</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="optLock" checked />
+          <span>
+            <b>Next-lock</b><br/>
+            <small>Na antwoord moet je even wachten voordat je “Volgende” kan.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" id="optFade" />
+          <span>
+            <b>Afbeelding fade-in</b><br/>
+            <small>Afbeelding komt langzaam tevoorschijn (anti-spieken).</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="modalBottom">
+        <button class="btnPrimary" id="settingsSave" type="button">Opslaan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox hidden" id="lightbox" aria-hidden="true">
+    <button class="lightboxClose" id="lightboxClose" type="button" aria-label="Sluiten">✕</button>
+    <img id="lightboxImg" alt="" />
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
