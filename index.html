@@ -1,0 +1,164 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RoddelPraat Quiz</title>
+
+  <meta name="theme-color" content="#0b0b10" />
+  <link rel="icon" href="assets/ui/favicon.png" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="wrap">
+    <main class="card">
+
+      <!-- HEADER BAR -->
+      <header class="topbar">
+        <div class="brand">
+          <div class="brandDot" aria-hidden="true"></div>
+          <div class="brandText">
+            <div class="brandTitle">RODDELPRAAT QUIZ</div>
+            <div class="brandSub">Paars • Zwart • Wit • Geel</div>
+          </div>
+        </div>
+
+        <div class="topbarRight">
+          <button class="btnGhost" id="settingsBtn" type="button" aria-label="Instellingen">
+            ⚙️ Instellingen
+          </button>
+        </div>
+      </header>
+
+      <!-- START / PLAYER SELECT -->
+      <section class="view active" id="playerView">
+
+        <div class="hero">
+          <div class="heroBadge">💜😈</div>
+          <h1 class="heroTitle">Kies je personage</h1>
+          <p class="heroText">
+            Speel de quiz in RoddelPraat-stijl. Geen kerst. Wel chaos.
+          </p>
+        </div>
+
+        <div class="panel">
+          <div class="subtitle">Wie ben jij vandaag?</div>
+          <div class="tinyNote">Tip: zet je eigen gifs in <code>assets/players/</code></div>
+
+          <div class="players" id="players"></div>
+
+          <div class="row">
+            <div class="noteBox">
+              <div class="noteTitle">Regels</div>
+              <ul class="noteList">
+                <li>Je kunt altijd terug (tenzij “Strict Mode” aan staat).</li>
+                <li>Optioneel: “Next lock” na antwoorden (anti-skip).</li>
+                <li>Admin speler kan alles (als je wil).</li>
+              </ul>
+            </div>
+
+            <div class="startBox">
+              <div class="tinyNote">Geselecteerd:</div>
+              <div class="pickedName" id="pickedName">—</div>
+              <button class="btnPrimary bigBtn" id="startBtn" disabled type="button">
+                START
+              </button>
+              <div class="tinyNote">Geen account. Geen cookies. Wel roddels.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- QUIZ -->
+      <section class="view" id="quizView">
+
+        <div class="quizTopRow">
+          <div class="youCard">
+            <img id="youImg" alt="Speler" />
+            <div class="youMeta">
+              <div class="youLabel">Jij:</div>
+              <div class="youName" id="youName">—</div>
+              <div class="youTag" id="youTag">—</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="statsLine" id="stats">Vraag 1 / 1</div>
+            <div class="statsMini" id="modeLine">—</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="panel qtop">
+            <div class="qNr" id="qNr"></div>
+            <div class="qText" id="qText"></div>
+
+            <div class="imgwrap" id="mediaWrap">
+              <img id="qImg" alt="Vraag afbeelding" />
+              <button class="imgZoom" id="imgZoom" type="button" aria-label="Afbeelding vergroten">🔍</button>
+            </div>
+
+            <div class="tinyNote" id="qMeta">—</div>
+          </div>
+
+          <div class="panel">
+            <div class="answers" id="answers"></div>
+
+            <div class="feedback hidden" id="feedback">
+              <div class="feedbackHead" id="feedbackHead"></div>
+              <div class="feedbackBody" id="feedbackBody"></div>
+            </div>
+
+            <div class="quizControls">
+              <button class="btnGhost" id="backBtn" disabled type="button">Terug</button>
+              <button class="btnPrimary" id="nextBtn" disabled type="button">VOLGENDE</button>
+            </div>
+
+            <div class="tinyNote" id="lockLine"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section class="view" id="resultView">
+
+        <div class="rpHero">
+          <div class="rpLogo">RODDELPRAAT QUIZ</div>
+          <div id="resultSummary" class="subtitle" style="margin:12px 0 0;"></div>
+          <div class="tinyNote" id="resultMeta"></div>
+        </div>
+
+        <div class="diplomaWrap">
+          <div class="diplomaCard">
+
+            <div class="diplomaTop">
+              <div>
+                <div class="diplomaTitle">Score-overzicht</div>
+                <div class="diplomaMeta" id="diplomaMeta">—</div>
+              </div>
+
+              <div class="diplomaStats">
+                <div class="pill good">Goed: <b id="dipGood">0</b></div>
+                <div class="pill bad">Fout: <b id="dipBad">0</b></div>
+                <div class="pill">Totaal: <b id="dipTotal">0</b></div>
+              </div>
+            </div>
+
+            <div class="reviewHeaderRow">
+              <div class="subtitle" style="margin:0;">Overzicht per vraag</div>
+              <div class="reviewActions">
+                <button class="btnGhost" id="showAllBtn" type="button">Alles</button>
+                <butc="tye/n  < dse"r"i cl <lbiTpt n
+ <obir=tu v d 
+/ m >-T
+lme=M"dt voa=otibl
+vs"v=ln
+ obhn=C ta=t/o sa c=
+ue=" n < < a u ira n b lt t="oc < Nor <lo et“ / > 
+<lo> pc" < bin<>ltgrji. a >d
+iao" tst"ay"lt  >/ - sgdior"chx=trat<io"
+rpc>l
