@@ -1,9 +1,8 @@
-// app.js
 document.addEventListener("DOMContentLoaded", () => {
   const $ = (id) => document.getElementById(id);
 
   // ===== CONFIG =====
-  const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- replace
+  const DISCORD_INVITE_URL = "https://discord.gg/ZjPFR2yJVQ"; // <- replace
   const DISCORD_ICON_SRC = "discord.png";                  // <- replace if needed
   // ==================
 
@@ -45,11 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const toTopBtn = $("toTopBtn");
   const restartBtn = $("restartBtn");
 
-  // Discord config
+  if(!startBtn || !startView || !quizView || !resultView){
+    console.error("Missing required DOM elements. Check IDs.");
+    return;
+  }
+
+  // Discord
   if(discordBtn) discordBtn.href = DISCORD_INVITE_URL;
   if(discordIcon) discordIcon.src = DISCORD_ICON_SRC;
 
-  // Views
   function show(view){
     [startView, quizView, resultView].forEach(v => v && v.classList.remove("active"));
     view.classList.add("active");
@@ -67,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.scrollTop = 0;
   }
 
-  // Questions (no date questions)
   const QUESTIONS = [
     {
       meta: "Basis",
@@ -103,18 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uitleg: "Meestal: wekelijks op YouTube, plus extra content achter een donateursmodel."
     },
     {
-      meta: "Platform",
-      vraag: "Welke feature wordt vaak genoemd rond de RoddelPraat-site/app?",
-      antwoorden: [
-        "Nieuws + community/reacties die kunnen terugkomen",
-        "Alleen merch verkoop",
-        "Alleen een podcastspeler",
-        "Alleen tickets voor events"
-      ],
-      correctIndex: 0,
-      uitleg: "Er wordt vaak gesproken over nieuws + reacties/community."
-    },
-    {
       meta: "Talpa",
       vraag: "Hoe wordt de Talpa-samenwerking meestal samengevat (globaal)?",
       antwoorden: [
@@ -142,7 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   ];
 
-  // State
   let started = false;
   let i = 0;
   let state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
@@ -187,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function pick(pickedIndex){
     const q = QUESTIONS[i];
     const s = state[i];
+
     s.answered = true;
     s.picked = pickedIndex;
     s.correct = (pickedIndex === q.correctIndex);
@@ -258,14 +248,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Start button
+  // START: hard switch mode + hard hide start view
   startBtn.addEventListener("click", () => {
     started = true;
 
-    // show topbar after start
-    if(topbar) topbar.classList.remove("hidden");
+    document.body.classList.remove("mode-start");
+    document.body.classList.add("mode-quiz");
 
-    // swap views
+    // safety: remove active from start explicitly
+    startView.classList.remove("active");
+
     show(quizView);
     i = 0;
     render();
@@ -295,7 +287,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showAllBtn.addEventListener("click", () => buildReview(false));
   showWrongBtn.addEventListener("click", () => buildReview(true));
-
   toTopBtn.addEventListener("click", () => scrollToTop());
 
   restartBtn.addEventListener("click", () => {
@@ -303,19 +294,18 @@ document.addEventListener("DOMContentLoaded", () => {
     state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
     i = 0;
 
-    // hide topbar on start again
-    if(topbar) topbar.classList.add("hidden");
+    document.body.classList.remove("mode-quiz");
+    document.body.classList.add("mode-start");
 
     show(startView);
     scrollToTop();
   });
 
-  // simple unload warn only after start
   window.addEventListener("beforeunload", (e) => {
     if(!started) return;
     e.preventDefault();
     e.returnValue = "";
   });
 
-  console.log("✅ Loaded. Start is clickable (no overlay DIV).");
+  console.log("✅ Loaded. Views switch hard; start cannot remain visible.");
 });
