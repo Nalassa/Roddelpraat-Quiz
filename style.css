@@ -1,4 +1,3 @@
-/* style.css */
 :root{
   --bg:#0b0b10;
   --card:#11111a;
@@ -33,14 +32,14 @@ body{
 
 .hidden{display:none !important}
 
-/* App layout */
+/* App */
 .app{
   min-height:100vh;
   display:flex;
   flex-direction:column;
 }
 
-/* Topbar */
+/* Topbar: hidden on start */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -50,6 +49,8 @@ body{
   border-bottom:1px solid rgba(255,255,255,.10);
   background: linear-gradient(90deg, rgba(122,44,255,.18), rgba(255,212,0,.10));
 }
+body.mode-start .topbar{ display:none; } /* <<< HARD HIDE on start */
+
 .brand{display:flex;align-items:center;gap:10px}
 .dot{
   width:12px;height:12px;border-radius:999px;
@@ -59,7 +60,6 @@ body{
 .brandTitle{font-weight:1000;letter-spacing:.7px}
 .brandSub{font-size:12px;opacity:.78;margin-top:2px}
 
-/* Discord icon button */
 .discordBtn{
   width:44px;height:44px;
   border-radius:16px;
@@ -84,14 +84,13 @@ body{
   display:block;
 }
 
-/* Views */
-.view{display:none}
-.view.active{display:block}
-
-/* START VIEW (no overlay div, only pseudo elements => cannot block clicks) */
+/* Views: ONLY active is visible (critical) */
+.view{ display:none; }               /* <<< HARD OFF */
+.view.active{ display:block; }       /* default */
+.startView.active{ display:flex; }   /* start uses flex */
 .startView{
   flex:1;
-  display:flex;
+  min-height:100vh;
   align-items:center;
   justify-content:center;
   position:relative;
@@ -107,7 +106,7 @@ body{
     radial-gradient(circle at 45% 45%, rgba(122,44,255,.25), transparent 55%),
     radial-gradient(circle at 55% 55%, rgba(255,212,0,.14), transparent 52%);
   filter: blur(2px);
-  pointer-events:none; /* CRITICAL */
+  pointer-events:none;
   z-index:0;
   animation: floatGlow 10s ease-in-out infinite;
 }
