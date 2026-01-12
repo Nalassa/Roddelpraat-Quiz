@@ -22,7 +22,6 @@
         </div>
 
         <div class="topbarRight">
-          <!-- Discord button (image + link in app.js) -->
           <a class="discordBtn" id="discordBtn" href="#" target="_blank" rel="noopener" aria-label="Discord">
             <img class="discordIcon" id="discordIcon" src="discord.png" alt="Discord">
           </a>
@@ -31,11 +30,13 @@
 
       <!-- START (fullscreen) -->
       <section class="view active startFull" id="startView">
+        <!-- Glow MUST NOT block clicks -->
+        <div class="startGlow" aria-hidden="true"></div>
+
         <div class="startCenter">
           <h1 class="startTitle">RODDELPRAAT QUIZ</h1>
           <button class="btnPrimary startBtn" id="startBtn" type="button">START</button>
         </div>
-        <div class="startGlow" aria-hidden="true"></div>
       </section>
 
       <!-- QUIZ -->
