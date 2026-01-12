@@ -1,22 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   const $ = (id) => document.getElementById(id);
 
-  // ===== CONFIG =====
-  const DISCORD_INVITE_URL = "https://discord.gg/XXXXXXX"; // <- replace
-  const DISCORD_ICON_SRC = "discord.png";                  // <- replace if needed
-  // ==================
-
-  // Elements
-  const topbar = $("topbar");
-
   const startView = $("startView");
   const quizView = $("quizView");
   const resultView = $("resultView");
 
   const startBtn = $("startBtn");
-
-  const discordBtn = $("discordBtn");
-  const discordIcon = $("discordIcon");
 
   const stats = $("stats");
   const mini = $("mini");
@@ -43,15 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const showWrongBtn = $("showWrongBtn");
   const toTopBtn = $("toTopBtn");
   const restartBtn = $("restartBtn");
-
-  if(!startBtn || !startView || !quizView || !resultView){
-    console.error("Missing required DOM elements. Check IDs.");
-    return;
-  }
-
-  // Discord
-  if(discordBtn) discordBtn.href = DISCORD_INVITE_URL;
-  if(discordIcon) discordIcon.src = DISCORD_ICON_SRC;
 
   function show(view){
     [startView, quizView, resultView].forEach(v => v && v.classList.remove("active"));
@@ -248,17 +228,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // START: hard switch mode + hard hide start view
+  // START
   startBtn.addEventListener("click", () => {
     started = true;
 
     document.body.classList.remove("mode-start");
     document.body.classList.add("mode-quiz");
 
-    // safety: remove active from start explicitly
     startView.classList.remove("active");
-
     show(quizView);
+
     i = 0;
     render();
     scrollToTop();
@@ -307,5 +286,5 @@ document.addEventListener("DOMContentLoaded", () => {
     e.returnValue = "";
   });
 
-  console.log("✅ Loaded. Views switch hard; start cannot remain visible.");
+  console.log("✅ Loaded");
 });
