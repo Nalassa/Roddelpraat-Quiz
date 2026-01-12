@@ -43,26 +43,33 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.scrollTop = 0;
   }
 
+  // Fisher–Yates shuffle (in-place)
+  function shuffle(arr){
+    for(let j = arr.length - 1; j > 0; j--){
+      const k = Math.floor(Math.random() * (j + 1));
+      [arr[j], arr[k]] = [arr[k], arr[j]];
+    }
+    return arr;
+  }
+
+  // ✅ BELANGRIJK: antw[0] is ALTIJD correct (dus correctIndex is altijd 0)
   const QUESTIONS = [
     {
       vraag: "Wie vormen de vaste presentatie (zoals doorgaans beschreven) van RoddelPraat?",
       image: "img/dennis-jan.jpg",
       antwoorden: ["Dennis Schouten & Jan Roos", "Dennis Schouten & Mark Baanders", "Jan Roos & Thierry Baudet", "Mark Baanders & Giel Beelen"],
-      correctIndex: 0,
       uitleg: "RoddelPraat wordt doorgaans beschreven met Dennis Schouten en Jan Roos als vaste presentatie."
     },
     {
       vraag: "Wie was in de eerste fase co-host naast Dennis, vóór Jan Roos vast werd?",
       image: "img/mark.jpg",
       antwoorden: ["Mark Baanders", "Henk Krol", "Bender", "Giel Beelen"],
-      correctIndex: 0,
       uitleg: "In de beginfase werd Mark Baanders genoemd als co-host."
     },
     {
       vraag: "Welke bijnaam wordt Mark Baanders in die context vaak toegeschreven?",
       image: "img/slijptol.jpg",
       antwoorden: ["Slijptol", "Mr Nightlife", "Lil Fat", "Jack Terrible"],
-      correctIndex: 0,
       uitleg: "De bijnaam die je vaak ziet terugkomen is ‘Slijptol’."
     },
     {
@@ -74,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "Alleen korte clips op socials",
         "Alleen live shows"
       ],
-      correctIndex: 0,
       uitleg: "Meestal: wekelijks op YouTube, plus extra content achter een donateursmodel."
     },
     {
@@ -86,43 +92,64 @@ document.addEventListener("DOMContentLoaded", () => {
         "Talpa maakte er een TV-prime-time show van",
         "Talpa kocht het kanaal"
       ],
-      correctIndex: 0,
       uitleg: "De samenwerking wordt doorgaans omschreven als kort en later beëindigd."
     },
     {
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
       image: "img/thierry.jpg",
       antwoorden: ["Thierry Baudet", "Eva Jinek", "Arjen Lubach", "Mark Rutte"],
-      correctIndex: 0,
       uitleg: "Thierry Baudet wordt in gastenselecties genoemd."
     },
     {
       vraag: "Welke naam staat bekend als (publiek) genoemde gast in selectielijsten?",
       image: "img/henk.jpg",
       antwoorden: ["Henk Krol", "Max Verstappen", "Virgil van Dijk", "André Hazes"],
-      correctIndex: 0,
       uitleg: "Henk Krol wordt in gastenselecties genoemd."
     },
     {
       vraag: "Welke term wordt door fans vaak als geintje gebruikt voor ‘de typische supporter’?",
       image: "img/kevin.jpg",
       antwoorden: ["Kevin", "Sjaak", "Karel", "Bram"],
-      correctIndex: 0,
-      uitleg: "‘Kevin’ wordt vaak als meme-woord gebruikt (jij wilde de Kevin-meuk weg — deze kun je ook weghalen als je wil)."
+      uitleg: "‘Kevin’ wordt vaak als meme-woord gebruikt."
     }
   ];
 
   let started = false;
   let i = 0;
-  let state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
+
+  // state per vraag:
+  // answered, pickedShown (index in getoonde volgorde), correctShown (index in getoonde volgorde), order (shuffle indices)
+  let state = QUESTIONS.map(() => ({
+    answered: false,
+    pickedShown: null,
+    correct: false,
+    order: null,
+    correctShown: null
+  }));
 
   function setNextLabel(){
     nextBtn.textContent = (i === QUESTIONS.length - 1) ? "RESULTAAT" : "VOLGENDE";
   }
 
+  function ensureOrderForQuestion(idx){
+    const q = QUESTIONS[idx];
+    const s = state[idx];
+
+    if(!s.order){
+      // Maak een index-lijst [0..n-1], shuffle die, en bewaar.
+      const order = shuffle([...Array(q.antwoorden.length).keys()]);
+      s.order = order;
+
+      // Correct antwoord is altijd data-index 0, dus waar zit 0 in de shuffle?
+      s.correctShown = order.indexOf(0);
+    }
+  }
+
   function render(){
     const q = QUESTIONS[i];
     const s = state[i];
+
+    ensureOrderForQuestion(i);
 
     stats.textContent = `Vraag ${i+1} / ${QUESTIONS.length}`;
     qText.textContent = q.vraag;
@@ -144,12 +171,13 @@ document.addEventListener("DOMContentLoaded", () => {
     nextBtn.disabled = !s.answered;
     setNextLabel();
 
-    q.antwoorden.forEach((t, idx) => {
+    // Render shuffled answers using s.order
+    s.order.forEach((dataIdx, shownIdx) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "answerBtn";
-      b.textContent = t;
-      b.onclick = () => pick(idx);
+      b.textContent = q.antwoorden[dataIdx];
+      b.onclick = () => pick(shownIdx);
       answers.appendChild(b);
     });
 
@@ -159,13 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function pick(pickedIndex){
+  // pickedShownIndex = index in the displayed order (0..n-1)
+  function pick(pickedShownIndex){
     const q = QUESTIONS[i];
     const s = state[i];
 
     s.answered = true;
-    s.picked = pickedIndex;
-    s.correct = (pickedIndex === q.correctIndex);
+    s.pickedShown = pickedShownIndex;
+    s.correct = (pickedShownIndex === s.correctShown);
 
     paint();
     showFeedback(q, s.correct);
@@ -174,23 +203,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function paint(){
-    const q = QUESTIONS[i];
     const s = state[i];
     const btns = [...answers.querySelectorAll("button")];
 
-    btns.forEach((b, idx) => {
+    btns.forEach((b, shownIdx) => {
       b.classList.remove("correct","wrong");
-      if(idx === q.correctIndex) b.classList.add("correct");
-      if(s.picked === idx && idx !== q.correctIndex) b.classList.add("wrong");
+
+      if(shownIdx === s.correctShown) b.classList.add("correct");
+      if(s.pickedShown === shownIdx && shownIdx !== s.correctShown) b.classList.add("wrong");
     });
   }
 
   function showFeedback(q, ok){
+    const s = state[i];
     feedback.classList.remove("hidden");
     feedbackHead.textContent = ok ? "✅ Goed!" : "❌ Fout!";
     feedbackHead.className = "feedbackHead " + (ok ? "good" : "bad");
+
+    // Correct antwoord blijft altijd q.antwoorden[0]
     feedbackBody.innerHTML = `
-      <p><b>Juiste antwoord:</b> ${q.antwoorden[q.correctIndex]}</p>
+      <p><b>Juiste antwoord:</b> ${q.antwoorden[0]}</p>
       ${q.uitleg ? `<p><b>Uitleg:</b> ${q.uitleg}</p>` : ""}
     `;
   }
@@ -225,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h4>${idx+1}. ${q.vraag}</h4>
         <div class="reviewMeta">
           ${badge}
-          <span><b>Juiste antwoord:</b> ${q.antwoorden[q.correctIndex]}</span>
+          <span><b>Juiste antwoord:</b> ${q.antwoorden[0]}</span>
         </div>
         ${q.uitleg ? `<div class="mini" style="margin-top:8px;opacity:.86"><b>Uitleg:</b> ${q.uitleg}</div>` : ""}
       `;
@@ -275,7 +307,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   restartBtn.addEventListener("click", () => {
     started = false;
-    state = QUESTIONS.map(() => ({ answered:false, picked:null, correct:false }));
+
+    // reset state (shuffle wordt opnieuw gedaan bij volgende render)
+    state = QUESTIONS.map(() => ({
+      answered:false,
+      pickedShown:null,
+      correct:false,
+      order:null,
+      correctShown:null
+    }));
     i = 0;
 
     document.body.classList.remove("mode-quiz");
